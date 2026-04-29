@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CropSense — Rekomendasi Tanaman AI</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green-50:  #EAF3DE;
+    --green-100: #C0DD97;
+    --green-200: #97C459;
+    --green-400: #639922;
+    --green-600: #3B6D11;
+    --green-800: #27500A;
+    --green-900: #173404;
+    --amber-50:  #FAEEDA;
+    --amber-100: #FAC775;
+    --amber-400: #BA7517;
+    --teal-50:   #E1F5EE;
+    --teal-200:  #5DCAA5;
+    --teal-600:  #0F6E56;
+    --gray-50:   #F1EFE8;
+    --gray-100:  #D3D1C7;
+    --gray-400:  #888780;
+    --gray-600:  #5F5E5A;
+    --gray-900:  #2C2C2A;
+    --red-50:    #FCEBEB;
+    --red-400:   #E24B4A;
+    --red-600:   #A32D2D;
+    --bg: #F7F5EE;
+    --surface: #FFFFFF;
+    --text-primary: #1A1A14;
+    --text-secondary: #5F5E5A;
+    --text-muted: #888780;
+    --border: rgba(0,0,0,0.1);
+    --border-strong: rgba(0,0,0,0.18);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141410;
+      --surface: #1E1E18;
+      --text-primary: #F0EDE4;
+      --text-secondary: #B4B2A9;
+      --text-muted: #5F5E5A;
+      --border: rgba(255,255,255,0.08);
+      --border-strong: rgba(255,255,255,0.14);
+    }
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ─── Hero ─── */
+  .hero {
+    padding: 5rem 2rem 3rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, var(--green-50) 0%, transparent 70%);
+    pointer-events: none;
+    opacity: 0.6;
+  }
+  @media (prefers-color-scheme: dark) {
+    .hero::before { background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(59,109,17,0.18) 0%, transparent 70%); opacity: 1; }
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--green-50);
+    color: var(--green-600);
+    border: 0.5px solid var(--green-100);
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    padding: 5px 14px;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+  @media (prefers-color-scheme: dark) {
+    .badge { background: rgba(59,109,17,0.2); color: var(--green-100); border-color: rgba(192,221,151,0.2); }
+  }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green-400); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.25rem;
+    color: var(--text-primary);
+  }
+  h1 em { font-style: italic; color: var(--green-600); }
+  @media (prefers-color-scheme: dark) { h1 em { color: var(--green-100); } }
+
+  .subtitle {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    max-width: 480px;
+    margin: 0 auto 0;
+    font-weight: 300;
+  }
+
+  /* ─── Main Layout ─── */
+  .main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 1.5rem 5rem;
+  }
+
+  /* ─── Card ─── */
+  .card {
+    background: var(--surface);
+    border: 0.5px solid var(--border-strong);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .card-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-label::after { content: ''; flex: 1; height: 0.5px; background: var(--border); }
+
+  /* ─── Form Grid ─── */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+
+  .field label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .field label span {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-muted);
+    background: var(--gray-50);
+    padding: 2px 8px;
+    border-radius: 100px;
+  }
+  @media (prefers-color-scheme: dark) { .field label span { background: rgba(255,255,255,0.06); } }
+
+  .field input {
+    width: 100%;
+    height: 42px;
+    padding: 0 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--text-primary);
+    background: var(--bg);
+    border: 0.5px solid var(--border-strong);
+    border-radius: 10px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    -moz-appearance: textfield;
+  }
+  .field input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .field input:hover { border-color: var(--green-200); }
+  .field input:focus { border-color: var(--green-400); box-shadow: 0 0 0 3px rgba(99,153,34,0.12); }
+  .field input.invalid { border-color: var(--red-400); box-shadow: 0 0 0 3px rgba(226,75,74,0.1); }
+  .field input.valid { border-color: var(--teal-200); }
+
+  .field-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    min-height: 16px;
+  }
+  .field-hint.error { color: var(--red-600); }
+
+  /* ─── Submit ─── */
+  .submit-wrap { margin-top: 1.5rem; display: flex; align-items: center; gap: 14px; }
+
+  button.predict-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 2rem;
+    height: 50px;
+    background: var(--green-600);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    flex-shrink: 0;
+  }
+  button.predict-btn:hover { background: var(--green-800); }
+  button.predict-btn:active { transform: scale(0.98); }
+  button.predict-btn:disabled { background: var(--gray-400); cursor: not-allowed; }
+
+  .btn-spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .api-note {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* ─── Result ─── */
+  #result-section { display: none; }
+
+  .result-card {
+    background: linear-gradient(135deg, var(--green-50) 0%, var(--teal-50) 100%);
+    border: 0.5px solid var(--green-100);
+    border-radius: 20px;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    animation: fadeUp 0.4s ease both;
+  }
+  @media (prefers-color-scheme: dark) {
+    .result-card {
+      background: linear-gradient(135deg, rgba(59,109,17,0.15) 0%, rgba(15,110,86,0.1) 100%);
+      border-color: rgba(192,221,151,0.15);
+    }
+  }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+  .result-emoji {
+    font-size: 4rem;
+    line-height: 1;
+    flex-shrink: 0;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.12));
+  }
+
+  .result-info { flex: 1; }
+  .result-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--green-600);
+    margin-bottom: 4px;
+  }
+  @media (prefers-color-scheme: dark) { .result-label { color: var(--green-100); } }
+
+  .result-crop {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.5rem;
+    line-height: 1.1;
+    color: var(--text-primary);
+    text-transform: capitalize;
+    margin-bottom: 0.75rem;
+  }
+
+  .result-stats {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .stat { display: flex; flex-direction: column; gap: 2px; }
+  .stat-val {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--green-800);
+  }
+  @media (prefers-color-scheme: dark) { .stat-val { color: var(--green-100); } }
+  .stat-key {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* ─── Confidence bar ─── */
+  .conf-bar-wrap {
+    margin-top: 0.75rem;
+    background: rgba(255,255,255,0.5);
+    border-radius: 100px;
+    height: 6px;
+    overflow: hidden;
+    max-width: 280px;
+  }
+  @media (prefers-color-scheme: dark) { .conf-bar-wrap { background: rgba(0,0,0,0.2); } }
+  .conf-bar {
+    height: 100%;
+    border-radius: 100px;
+    background: var(--green-400);
+    transition: width 0.8s cubic-bezier(.4,0,.2,1);
+    width: 0%;
+  }
+
+  /* ─── Error state ─── */
+  .error-card {
+    background: var(--red-50);
+    border: 0.5px solid rgba(226,75,74,0.2);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    animation: fadeUp 0.3s ease both;
+  }
+  @media (prefers-color-scheme: dark) { .error-card { background: rgba(163,45,45,0.12); } }
+  .error-title {
+    font-weight: 600;
+    color: var(--red-600);
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+  .error-list {
+    list-style: none;
+    font-size: 13px;
+    color: var(--red-600);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .error-list li::before { content: '· '; }
+
+  /* ─── Info strip ─── */
+  .info-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+    border: 0.5px solid var(--border);
+  }
+  .info-item {
+    background: var(--surface);
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .info-item-key { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .info-item-val { font-size: 15px; font-weight: 500; color: var(--text-primary); }
+
+  /* ─── Crop Info ─── */
+  .info-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border-strong);
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 1rem;
+    animation: fadeUp 0.5s ease 0.15s both;
+  }
+
+  .info-card-header {
+    padding: 1.25rem 1.75rem;
+    border-bottom: 0.5px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-align: center;
+  }
+
+  .info-card-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.15rem;
+    font-weight: 400;
+    text-transform: capitalize;
+    color: var(--text-primary);
+  }
+
+  .info-card-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  .info-block {
+    padding: 1.25rem 1.75rem;
+    border-right: 0.5px solid var(--border);
+    border-bottom: 0.5px solid var(--border);
+    text-align: center;
+  }
+  .info-block:last-child { border-right: none; }
+
+  .info-block-key {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .info-block-val {
+    font-size: 14px;
+    color: var(--text-primary);
+    line-height: 1.5;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+    justify-content: center;
+  }
+
+  .tag {
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-weight: 500;
+    border: 0.5px solid;
+  }
+
+  .tag-pest {
+    background: var(--amber-50);
+    color: var(--amber-400);
+    border-color: rgba(186,117,23,0.2);
+  }
+
+  .tag-disease {
+    background: var(--red-50);
+    color: var(--red-600);
+    border-color: rgba(163,45,45,0.2);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .tag-pest { background: rgba(186,117,23,0.15); }
+    .tag-disease { background: rgba(163,45,45,0.12); }
+  }
+
+  /* ─── Pest Modal ─── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+  .modal {
+    background: var(--surface);
+    border: 0.5px solid var(--border-strong);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 520px;
+    max-height: 88vh;
+    overflow-y: auto;
+    animation: slideUp 0.25s cubic-bezier(.4,0,.2,1);
+    scrollbar-width: thin;
+    scrollbar-color: var(--green-200) transparent;
+  }
+  .modal::-webkit-scrollbar { width: 4px; }
+  .modal::-webkit-scrollbar-track { background: transparent; }
+  .modal::-webkit-scrollbar-thumb {
+    background: var(--green-200);
+    border-radius: 100px;
+  }
+  .modal::-webkit-scrollbar-thumb:hover { background: var(--green-400); }
+  @keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+  .modal-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 18px 18px 0 0;
+    background: var(--gray-50);
+    display: block;
+  }
+  .modal-img-placeholder {
+    width: 100%;
+    height: 180px;
+    background: var(--gray-50);
+    border-radius: 18px 18px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+  }
+  @media (prefers-color-scheme: dark) { .modal-img-placeholder { background: rgba(255,255,255,0.04); } }
+
+  .modal-body { padding: 1.5rem 1.75rem 1.75rem; }
+
+  .modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    gap: 1rem;
+  }
+
+  .modal-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    font-weight: 400;
+    text-transform: capitalize;
+    color: var(--text-primary);
+    line-height: 1.2;
+  }
+
+  .modal-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 0.5px solid var(--border-strong);
+    background: var(--bg);
+    color: var(--text-secondary);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .modal-close:hover { background: var(--gray-100); }
+
+  .damage-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 3px 10px;
+    border-radius: 100px;
+    margin-bottom: 1rem;
+    border: 0.5px solid;
+  }
+  .damage-high   { background: var(--red-50);   color: var(--red-600);   border-color: rgba(163,45,45,0.2); }
+  .damage-medium { background: var(--amber-50); color: var(--amber-400); border-color: rgba(186,117,23,0.2); }
+  .damage-low    { background: var(--green-50); color: var(--green-600); border-color: rgba(59,109,17,0.2); }
+  @media (prefers-color-scheme: dark) {
+    .damage-high   { background: rgba(163,45,45,0.15); }
+    .damage-medium { background: rgba(186,117,23,0.15); }
+    .damage-low    { background: rgba(59,109,17,0.15); }
+  }
+
+  .modal-desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 1.25rem;
+  }
+
+  .modal-section { margin-bottom: 1rem; }
+  .modal-section-key {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+  }
+  .modal-section-val {
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.6;
+  }
+
+  .pesticide-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 5px; }
+  .pesticide-tag {
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    background: var(--teal-50);
+    color: var(--teal-600);
+    border: 0.5px solid rgba(15,110,86,0.2);
+    font-weight: 500;
+  }
+  @media (prefers-color-scheme: dark) { .pesticide-tag { background: rgba(15,110,86,0.15); color: #5DCAA5; } }
+
+  .modal-divider { height: 0.5px; background: var(--border); margin: 1rem 0; }
+
+  .season-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  /* ─── Clickable pest tag ─── */
+  .tag-pest, .tag-disease { cursor: default; }
+  .tag-pest.clickable {
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .tag-pest.clickable:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  }
+  .tag-pest.clickable:active { transform: scale(0.97); }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 580px) {
+    .result-card { flex-direction: column; text-align: center; }
+    .result-stats { justify-content: center; }
+    .conf-bar-wrap { margin: 0.75rem auto 0; }
+    .submit-wrap { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="badge"><span class="badge-dot"></span>AI-Powered · Random Forest</div>
+  <h1>Tanaman apa yang<br>cocok untuk <em>lahanmu?</em></h1>
+  <p class="subtitle">Masukkan kondisi tanah dan iklim, AI akan merekomendasikan tanaman terbaik secara instan.</p>
+</section>
+
+<main class="main">
+
+  <!-- Info strip -->
+  <div class="info-strip">
+    <div class="info-item">
+      <span class="info-item-key">Model</span>
+      <span class="info-item-val">Random Forest</span>
+    </div>
+    <div class="info-item">
+      <span class="info-item-key">Akurasi</span>
+      <span class="info-item-val" id="model-accuracy">—</span>
+    </div>
+    <div class="info-item">
+      <span class="info-item-key">Kelas tanaman</span>
+      <span class="info-item-val">22 jenis</span>
+    </div>
+    <div class="info-item">
+      <span class="info-item-key">Status API</span>
+      <span class="info-item-val" id="api-status">Menghubungkan...</span>
+    </div>
+  </div>
+
+  <!-- Form card -->
+  <div class="card">
+    <div class="card-label">Data tanah</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Nitrogen (N) <span>0–140</span></label>
+        <input type="number" id="N" placeholder="mis. 90" min="0" max="140" step="1" />
+        <span class="field-hint" id="hint-N"></span>
+      </div>
+      <div class="field">
+        <label>Fosfor (P) <span>5–145</span></label>
+        <input type="number" id="P" placeholder="mis. 42" min="5" max="145" step="1" />
+        <span class="field-hint" id="hint-P"></span>
+      </div>
+      <div class="field">
+        <label>Kalium (K) <span>5–205</span></label>
+        <input type="number" id="K" placeholder="mis. 43" min="5" max="205" step="1" />
+        <span class="field-hint" id="hint-K"></span>
+      </div>
+      <div class="field">
+        <label>pH tanah <span>3.5–9.5</span></label>
+        <input type="number" id="ph" placeholder="mis. 6.5" min="3.5" max="9.5" step="0.01" />
+        <span class="field-hint" id="hint-ph"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form card 2 -->
+  <div class="card">
+    <div class="card-label">Data iklim</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Suhu <span>8–44 °C</span></label>
+        <input type="number" id="temperature" placeholder="mis. 20.8" min="8" max="44" step="0.01" />
+        <span class="field-hint" id="hint-temperature"></span>
+      </div>
+      <div class="field">
+        <label>Kelembapan <span>14–100 %</span></label>
+        <input type="number" id="humidity" placeholder="mis. 82.0" min="14" max="100" step="0.01" />
+        <span class="field-hint" id="hint-humidity"></span>
+      </div>
+      <div class="field">
+        <label>Curah hujan <span>20–300 mm</span></label>
+        <input type="number" id="rainfall" placeholder="mis. 202.9" min="20" max="300" step="0.01" />
+        <span class="field-hint" id="hint-rainfall"></span>
+      </div>
+    </div>
+
+    <div class="submit-wrap">
+      <button class="predict-btn" id="predict-btn" onclick="predict()">
+        <div class="btn-spinner" id="spinner"></div>
+        <span id="btn-text">Prediksi Tanaman</span>
+      </button>
+      <p class="api-note">Pastikan Flask server berjalan di<br><code>http://localhost:5000</code></p>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div id="result-section"></div>
+
+</main>
+
+<!-- Pest Modal -->
+<div class="modal-overlay" id="pest-modal" onclick="closeModal(event)">
+  <div class="modal" id="modal-content">
+    <div id="modal-inner"></div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:5000';
+
+const RANGES = {
+  N:           [0,    140,  'kg/ha'],
+  P:           [5,    145,  'kg/ha'],
+  K:           [5,    205,  'kg/ha'],
+  temperature: [8,    44,   '°C'],
+  humidity:    [14,   100,  '%'],
+  ph:          [3.5,  9.5,  ''],
+  rainfall:    [20,   300,  'mm'],
+};
+
+// Check API health on load
+async function checkHealth() {
+  try {
+    const r = await fetch(`${API}/health`);
+    const d = await r.json();
+    document.getElementById('api-status').textContent = 'Online';
+    document.getElementById('api-status').style.color = '#3B6D11';
+    document.getElementById('model-accuracy').textContent = d.model_accuracy.toFixed(2) + '%';
+  } catch {
+    document.getElementById('api-status').textContent = 'Offline';
+    document.getElementById('api-status').style.color = '#A32D2D';
+  }
+}
+
+// Live validation
+Object.keys(RANGES).forEach(id => {
+  const input = document.getElementById(id);
+  if (!input) return;
+  input.addEventListener('input', () => validateField(id));
+});
+
+function validateField(id) {
+  const input = document.getElementById(id);
+  const hint  = document.getElementById('hint-' + id);
+  if (!input || input.value === '') {
+    input.classList.remove('valid', 'invalid');
+    if (hint) hint.textContent = '';
+    return true;
+  }
+  const val = parseFloat(input.value);
+  const [lo, hi, unit] = RANGES[id];
+  const ok = val >= lo && val <= hi;
+  input.classList.toggle('valid', ok);
+  input.classList.toggle('invalid', !ok);
+  if (hint) {
+    hint.textContent = ok ? '' : `Harus antara ${lo}–${hi}${unit ? ' ' + unit : ''}`;
+    hint.className = 'field-hint' + (ok ? '' : ' error');
+  }
+  return ok;
+}
+
+async function predict() {
+  // Validate all
+  let allOk = true;
+  const payload = {};
+  for (const id of Object.keys(RANGES)) {
+    const val = document.getElementById(id)?.value;
+    if (!val) { allOk = false; document.getElementById('hint-' + id).textContent = 'Wajib diisi'; document.getElementById('hint-' + id).className = 'field-hint error'; continue; }
+    if (!validateField(id)) allOk = false;
+    payload[id] = parseFloat(val);
+  }
+  if (!allOk) return;
+
+  // Loading state
+  const btn = document.getElementById('predict-btn');
+  btn.disabled = true;
+  document.getElementById('spinner').style.display = 'block';
+  document.getElementById('btn-text').textContent = 'Memproses...';
+  document.getElementById('result-section').style.display = 'none';
+
+  try {
+    const res = await fetch(`${API}/predict`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showError(data);
+    } else {
+      showResult(data);
+    }
+  } catch (e) {
+    showError({ error: 'Tidak dapat terhubung ke server Flask.', details: ['Pastikan server berjalan: python app.py'] });
+  } finally {
+    btn.disabled = false;
+    document.getElementById('spinner').style.display = 'none';
+    document.getElementById('btn-text').textContent = 'Prediksi Tanaman';
+  }
+}
+
+async function showResult(data) {
+  const sec = document.getElementById('result-section');
+  sec.style.display = 'block';
+  sec.innerHTML = `
+    <div class="result-card">
+      <div class="result-emoji">${data.emoji}</div>
+      <div class="result-info">
+        <div class="result-label">Tanaman yang direkomendasikan</div>
+        <div class="result-crop">${data.crop}</div>
+        <div class="result-stats">
+          <div class="stat">
+            <span class="stat-val">${data.confidence.toFixed(1)}%</span>
+            <span class="stat-key">Confidence</span>
+          </div>
+          <div class="stat">
+            <span class="stat-val">${data.model_accuracy.toFixed(2)}%</span>
+            <span class="stat-key">Model accuracy</span>
+          </div>
+        </div>
+        <div class="conf-bar-wrap">
+          <div class="conf-bar" id="conf-bar"></div>
+        </div>
+      </div>
+    </div>
+    <div id="crop-info-card"></div>`;
+
+  sec.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  setTimeout(() => {
+    document.getElementById('conf-bar').style.width = data.confidence.toFixed(1) + '%';
+  }, 50);
+
+  // Fetch crop detail info
+  try {
+    const r = await fetch(`${API}/crop-info/${data.crop}`);
+    const info = await r.json();
+    if (r.ok) renderCropInfo(data.crop, data.emoji, info);
+  } catch { /* skip if offline */ }
+}
+
+function renderCropInfo(crop, emoji, info) {
+  const el = document.getElementById('crop-info-card');
+  if (!el) return;
+
+  const pestTags    = (info.pests    || []).map(p => `<span class="tag tag-pest clickable" onclick="openPestModal('${p}')">${p} ↗</span>`).join('');
+  const diseaseTags = (info.diseases || []).map(d => `<span class="tag tag-disease">${d}</span>`).join('');
+
+  el.innerHTML = `
+    <div class="info-card">
+      <div class="info-card-header">
+        <span style="font-size:1.6rem;line-height:1">${emoji}</span>
+        <div>
+          <div class="info-card-title">${crop}</div>
+          <div class="info-card-subtitle">Panduan budidaya</div>
+        </div>
+      </div>
+      <div class="info-grid">
+        <div class="info-block">
+          <div class="info-block-key">🌱 Waktu tanam</div>
+          <div class="info-block-val">${info.planting}</div>
+        </div>
+        <div class="info-block">
+          <div class="info-block-key">🌾 Masa panen</div>
+          <div class="info-block-val">${info.harvest}</div>
+        </div>
+        <div class="info-block" style="grid-column: 1 / -1">
+          <div class="info-block-key">💧 Perawatan</div>
+          <div class="info-block-val">${info.care}</div>
+        </div>
+        <div class="info-block">
+          <div class="info-block-key">🐛 Hama umum</div>
+          <div class="tags">${pestTags}</div>
+        </div>
+        <div class="info-block">
+          <div class="info-block-key">🦠 Penyakit umum</div>
+          <div class="tags">${diseaseTags}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function showError(data) {
+  const sec = document.getElementById('result-section');
+  sec.style.display = 'block';
+  const details = (data.details || []).map(d => `<li>${d}</li>`).join('');
+  sec.innerHTML = `
+    <div class="error-card">
+      <div class="error-title">⚠ ${data.error}</div>
+      ${details ? `<ul class="error-list">${details}</ul>` : ''}
+    </div>`;
+}
+
+const DAMAGE_LABEL = { high: '🔴 High damage', medium: '🟡 Medium damage', low: '🟢 Low damage' };
+
+async function openPestModal(pestName) {
+  const overlay = document.getElementById('pest-modal');
+  const inner   = document.getElementById('modal-inner');
+
+  // Show loading
+  overlay.classList.add('open');
+  inner.innerHTML = `
+    <div class="modal-img-placeholder">🐛</div>
+    <div class="modal-body">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">
+        <div style="width:140px;height:20px;background:var(--gray-50);border-radius:6px;animation:shimmer 1s infinite"></div>
+      </div>
+      <p style="font-size:13px;color:var(--text-muted)">Memuat informasi...</p>
+    </div>`;
+
+  try {
+    const infoRes = await fetch(`${API}/pest-info/${encodeURIComponent(pestName)}`);
+    const info    = await infoRes.json();
+
+    const dmgClass = `damage-${info.damage_level || 'medium'}`;
+    const dmgLabel = DAMAGE_LABEL[info.damage_level] || 'Unknown';
+    const pesticides = (info.pesticides || [])
+      .map(p => `<span class="pesticide-tag">${p}</span>`).join('');
+
+    inner.innerHTML = `
+      <img src="${getPestImage(pestName)}" 
+     class="modal-img" 
+     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+<div class="modal-img-placeholder" style="display:none;">🐛</div>
+      <div class="modal-body">
+        <div class="modal-header">
+          <div class="modal-title">${pestName}</div>
+          <button class="modal-close" onclick="document.getElementById('pest-modal').classList.remove('open')">✕</button>
+        </div>
+        <span class="damage-badge ${dmgClass}">${dmgLabel}</span>
+        <p class="modal-desc">${info.description || '—'}</p>
+        <div class="modal-divider"></div>
+        <div class="modal-section">
+          <div class="modal-section-key">⚠ Gejala serangan</div>
+          <div class="modal-section-val">${info.symptoms || '—'}</div>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-key">🛡 Pencegahan</div>
+          <div class="modal-section-val">${info.prevention || '—'}</div>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-key">💊 Penanganan</div>
+          <div class="modal-section-val">${info.treatment || '—'}</div>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-key">🧪 Pestisida</div>
+          <div class="pesticide-tags">${pesticides}</div>
+        </div>
+        <div class="modal-divider"></div>
+        <div class="season-row">🗓 Musim aktif: <strong>${info.active_season || '—'}</strong></div>
+      </div>`;
+  } catch {
+    inner.innerHTML = `
+      <div class="modal-body">
+        <div class="modal-header">
+          <div class="modal-title">${pestName}</div>
+          <button class="modal-close" onclick="document.getElementById('pest-modal').classList.remove('open')">✕</button>
+        </div>
+        <p style="color:var(--red-600);font-size:14px">Gagal memuat info. Pastikan server berjalan.</p>
+      </div>`;
+  }
+}
+function getPestImage(pestName) {
+  return `pest_image/${pestName.toLowerCase().replace(/\s+/g, '_')}.jpg`;
+}
+
+
+function closeModal(e) {
+  if (e.target === document.getElementById('pest-modal')) {
+    document.getElementById('pest-modal').classList.remove('open');
+  }
+}
+
+// Close with Escape key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.getElementById('pest-modal').classList.remove('open');
+});
+
+checkHealth();
+</script>
+</body>
+</html>

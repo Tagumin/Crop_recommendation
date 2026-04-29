@@ -1,0 +1,47 @@
+# --- Virtual Environments (BIANG KEROK UTAMA) ---
+env/
+venv/
+.env/
+ENV/
+bin/
+lib/
+share/
+Include/
+pyvenv.cfg
+
+# --- Python Junk ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# --- Jupyter Notebook ---
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+
+# --- IDE & Editor (VS Code, PyCharm, dll) ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Logs & Temp Files ---
+*.log
+logs/
+tmp/
+temp/
+
+# --- OS Junk ---
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# --- Data & AI Models (Opsional: Jika filenya >50MB) ---
+# Jika ingin menyimpan model di cloud/drive saja, aktifkan baris di bawah:
+# *.pkl
+# *.csv
+# *.weights
+# *.h5
+python.ipynb
