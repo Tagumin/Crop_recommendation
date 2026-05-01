@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CropSense — Rekomendasi Tanaman AI</title>
+<title>CropSense — AI Crop Recommendation</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -30,6 +30,9 @@
     --red-50:    #FCEBEB;
     --red-400:   #E24B4A;
     --red-600:   #A32D2D;
+    --purple-50: #F3EEFF;
+    --purple-400:#7C4DBA;
+    --purple-600:#5A2F99;
     --bg: #F7F5EE;
     --surface: #FFFFFF;
     --text-primary: #1A1A14;
@@ -48,6 +51,7 @@
       --text-muted: #5F5E5A;
       --border: rgba(255,255,255,0.08);
       --border-strong: rgba(255,255,255,0.14);
+      --purple-50: rgba(124,77,186,0.15);
     }
   }
 
@@ -114,7 +118,7 @@
     font-size: 1.1rem;
     color: var(--text-secondary);
     max-width: 480px;
-    margin: 0 auto 0;
+    margin: 0 auto;
     font-weight: 300;
   }
 
@@ -195,11 +199,7 @@
   .field input.invalid { border-color: var(--red-400); box-shadow: 0 0 0 3px rgba(226,75,74,0.1); }
   .field input.valid { border-color: var(--teal-200); }
 
-  .field-hint {
-    font-size: 11px;
-    color: var(--text-muted);
-    min-height: 16px;
-  }
+  .field-hint { font-size: 11px; color: var(--text-muted); min-height: 16px; }
   .field-hint.error { color: var(--red-600); }
 
   /* ─── Submit ─── */
@@ -236,11 +236,7 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .api-note {
-    font-size: 12px;
-    color: var(--text-muted);
-    line-height: 1.5;
-  }
+  .api-note { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
 
   /* ─── Result ─── */
   #result-section { display: none; }
@@ -263,22 +259,10 @@
   }
   @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
 
-  .result-emoji {
-    font-size: 4rem;
-    line-height: 1;
-    flex-shrink: 0;
-    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.12));
-  }
+  .result-emoji { font-size: 4rem; line-height: 1; flex-shrink: 0; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.12)); }
 
   .result-info { flex: 1; }
-  .result-label {
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--green-600);
-    margin-bottom: 4px;
-  }
+  .result-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--green-600); margin-bottom: 4px; }
   @media (prefers-color-scheme: dark) { .result-label { color: var(--green-100); } }
 
   .result-crop {
@@ -290,27 +274,12 @@
     margin-bottom: 0.75rem;
   }
 
-  .result-stats {
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-  }
-
+  .result-stats { display: flex; gap: 1.5rem; flex-wrap: wrap; }
   .stat { display: flex; flex-direction: column; gap: 2px; }
-  .stat-val {
-    font-size: 1.4rem;
-    font-weight: 600;
-    color: var(--green-800);
-  }
+  .stat-val { font-size: 1.4rem; font-weight: 600; color: var(--green-800); }
   @media (prefers-color-scheme: dark) { .stat-val { color: var(--green-100); } }
-  .stat-key {
-    font-size: 11px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
+  .stat-key { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
 
-  /* ─── Confidence bar ─── */
   .conf-bar-wrap {
     margin-top: 0.75rem;
     background: rgba(255,255,255,0.5);
@@ -328,7 +297,7 @@
     width: 0%;
   }
 
-  /* ─── Error state ─── */
+  /* ─── Error ─── */
   .error-card {
     background: var(--red-50);
     border: 0.5px solid rgba(226,75,74,0.2);
@@ -337,20 +306,8 @@
     animation: fadeUp 0.3s ease both;
   }
   @media (prefers-color-scheme: dark) { .error-card { background: rgba(163,45,45,0.12); } }
-  .error-title {
-    font-weight: 600;
-    color: var(--red-600);
-    font-size: 14px;
-    margin-bottom: 6px;
-  }
-  .error-list {
-    list-style: none;
-    font-size: 13px;
-    color: var(--red-600);
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-  }
+  .error-title { font-weight: 600; color: var(--red-600); font-size: 14px; margin-bottom: 6px; }
+  .error-list { list-style: none; font-size: 13px; color: var(--red-600); display: flex; flex-direction: column; gap: 3px; }
   .error-list li::before { content: '· '; }
 
   /* ─── Info strip ─── */
@@ -364,17 +321,11 @@
     margin-bottom: 1.25rem;
     border: 0.5px solid var(--border);
   }
-  .info-item {
-    background: var(--surface);
-    padding: 1rem 1.25rem;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
+  .info-item { background: var(--surface); padding: 1rem 1.25rem; display: flex; flex-direction: column; gap: 4px; }
   .info-item-key { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
   .info-item-val { font-size: 15px; font-weight: 500; color: var(--text-primary); }
 
-  /* ─── Crop Info ─── */
+  /* ─── Crop Info Card ─── */
   .info-card {
     background: var(--surface);
     border: 0.5px solid var(--border-strong);
@@ -395,25 +346,10 @@
     text-align: center;
   }
 
-  .info-card-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.15rem;
-    font-weight: 400;
-    text-transform: capitalize;
-    color: var(--text-primary);
-  }
+  .info-card-title { font-family: 'DM Serif Display', serif; font-size: 1.15rem; font-weight: 400; text-transform: capitalize; color: var(--text-primary); }
+  .info-card-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
 
-  .info-card-subtitle {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-top: 1px;
-  }
-
-  .info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0;
-  }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
 
   .info-block {
     padding: 1.25rem 1.75rem;
@@ -422,56 +358,34 @@
     text-align: center;
   }
   .info-block:last-child { border-right: none; }
+  .info-block-key { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px; }
+  .info-block-val { font-size: 14px; color: var(--text-primary); line-height: 1.5; }
 
-  .info-block-key {
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-muted);
-    margin-bottom: 6px;
-  }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; justify-content: center; }
 
-  .info-block-val {
-    font-size: 14px;
-    color: var(--text-primary);
-    line-height: 1.5;
-  }
-
-  .tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 4px;
-    justify-content: center;
-  }
-
-  .tag {
-    font-size: 12px;
-    padding: 3px 10px;
-    border-radius: 100px;
-    font-weight: 500;
-    border: 0.5px solid;
-  }
+  .tag { font-size: 12px; padding: 3px 10px; border-radius: 100px; font-weight: 500; border: 0.5px solid; }
 
   .tag-pest {
     background: var(--amber-50);
     color: var(--amber-400);
     border-color: rgba(186,117,23,0.2);
   }
-
   .tag-disease {
     background: var(--red-50);
     color: var(--red-600);
     border-color: rgba(163,45,45,0.2);
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
   }
+  .tag-disease:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+  .tag-disease:active { transform: scale(0.97); }
 
   @media (prefers-color-scheme: dark) {
-    .tag-pest { background: rgba(186,117,23,0.15); }
+    .tag-pest    { background: rgba(186,117,23,0.15); }
     .tag-disease { background: rgba(163,45,45,0.12); }
   }
 
-  /* ─── Pest Modal ─── */
+  /* ─── Modal (shared by pest & disease) ─── */
   .modal-overlay {
     display: none;
     position: fixed;
@@ -500,10 +414,7 @@
   }
   .modal::-webkit-scrollbar { width: 4px; }
   .modal::-webkit-scrollbar-track { background: transparent; }
-  .modal::-webkit-scrollbar-thumb {
-    background: var(--green-200);
-    border-radius: 100px;
-  }
+  .modal::-webkit-scrollbar-thumb { background: var(--green-200); border-radius: 100px; }
   .modal::-webkit-scrollbar-thumb:hover { background: var(--green-400); }
   @keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
 
@@ -528,118 +439,68 @@
   @media (prefers-color-scheme: dark) { .modal-img-placeholder { background: rgba(255,255,255,0.04); } }
 
   .modal-body { padding: 1.5rem 1.75rem 1.75rem; }
-
-  .modal-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-    gap: 1rem;
-  }
-
-  .modal-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.5rem;
-    font-weight: 400;
-    text-transform: capitalize;
-    color: var(--text-primary);
-    line-height: 1.2;
-  }
-
+  .modal-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem; gap: 1rem; }
+  .modal-title { font-family: 'DM Serif Display', serif; font-size: 1.5rem; font-weight: 400; text-transform: capitalize; color: var(--text-primary); line-height: 1.2; }
   .modal-close {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
+    width: 32px; height: 32px; border-radius: 50%;
     border: 0.5px solid var(--border-strong);
-    background: var(--bg);
-    color: var(--text-secondary);
-    font-size: 16px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: background 0.15s;
+    background: var(--bg); color: var(--text-secondary);
+    font-size: 16px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: background 0.15s;
   }
   .modal-close:hover { background: var(--gray-100); }
 
   .damage-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    padding: 3px 10px;
-    border-radius: 100px;
-    margin-bottom: 1rem;
-    border: 0.5px solid;
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.08em; padding: 3px 10px;
+    border-radius: 100px; margin-bottom: 1rem; border: 0.5px solid;
   }
-  .damage-high   { background: var(--red-50);   color: var(--red-600);   border-color: rgba(163,45,45,0.2); }
-  .damage-medium { background: var(--amber-50); color: var(--amber-400); border-color: rgba(186,117,23,0.2); }
-  .damage-low    { background: var(--green-50); color: var(--green-600); border-color: rgba(59,109,17,0.2); }
+  .damage-high   { background: var(--red-50);   color: var(--red-600);    border-color: rgba(163,45,45,0.2); }
+  .damage-medium { background: var(--amber-50); color: var(--amber-400);  border-color: rgba(186,117,23,0.2); }
+  .damage-low    { background: var(--green-50); color: var(--green-600);  border-color: rgba(59,109,17,0.2); }
   @media (prefers-color-scheme: dark) {
     .damage-high   { background: rgba(163,45,45,0.15); }
     .damage-medium { background: rgba(186,117,23,0.15); }
     .damage-low    { background: rgba(59,109,17,0.15); }
   }
 
-  .modal-desc {
-    font-size: 14px;
-    color: var(--text-secondary);
-    line-height: 1.7;
-    margin-bottom: 1.25rem;
-  }
-
+  .modal-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 1.25rem; }
   .modal-section { margin-bottom: 1rem; }
-  .modal-section-key {
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-muted);
-    margin-bottom: 5px;
-  }
-  .modal-section-val {
-    font-size: 13px;
-    color: var(--text-primary);
-    line-height: 1.6;
-  }
+  .modal-section-key { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 5px; }
+  .modal-section-val { font-size: 13px; color: var(--text-primary); line-height: 1.6; }
 
-  .pesticide-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 5px; }
-  .pesticide-tag {
-    font-size: 12px;
-    padding: 3px 10px;
-    border-radius: 100px;
-    background: var(--teal-50);
-    color: var(--teal-600);
-    border: 0.5px solid rgba(15,110,86,0.2);
-    font-weight: 500;
+  .chemical-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 5px; }
+  .chemical-tag {
+    font-size: 12px; padding: 3px 10px; border-radius: 100px;
+    font-weight: 500; border: 0.5px solid;
   }
-  @media (prefers-color-scheme: dark) { .pesticide-tag { background: rgba(15,110,86,0.15); color: #5DCAA5; } }
+  /* pest chemicals — teal */
+  .chemical-tag.pesticide {
+    background: var(--teal-50); color: var(--teal-600);
+    border-color: rgba(15,110,86,0.2);
+  }
+  /* disease chemicals — purple */
+  .chemical-tag.fungicide {
+    background: var(--purple-50); color: var(--purple-600);
+    border-color: rgba(90,47,153,0.2);
+  }
+  @media (prefers-color-scheme: dark) {
+    .chemical-tag.pesticide { background: rgba(15,110,86,0.15); color: #5DCAA5; }
+    .chemical-tag.fungicide { background: rgba(124,77,186,0.15); color: #B48FE8; }
+  }
 
   .modal-divider { height: 0.5px; background: var(--border); margin: 1rem 0; }
-
-  .season-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    color: var(--text-secondary);
-  }
+  .season-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); }
 
   /* ─── Clickable pest tag ─── */
-  .tag-pest, .tag-disease { cursor: default; }
-  .tag-pest.clickable {
+  .tag-pest {
     cursor: pointer;
     transition: transform 0.1s, box-shadow 0.1s;
   }
-  .tag-pest.clickable:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-  }
-  .tag-pest.clickable:active { transform: scale(0.97); }
+  .tag-pest:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+  .tag-pest:active { transform: scale(0.97); }
 
   /* ─── Responsive ─── */
   @media (max-width: 580px) {
@@ -654,8 +515,8 @@
 
 <section class="hero">
   <div class="badge"><span class="badge-dot"></span>AI-Powered · Random Forest</div>
-  <h1>Tanaman apa yang<br>cocok untuk <em>lahanmu?</em></h1>
-  <p class="subtitle">Masukkan kondisi tanah dan iklim, AI akan merekomendasikan tanaman terbaik secara instan.</p>
+  <h1>What crop suits<br>your <em>land best?</em></h1>
+  <p class="subtitle">Enter your soil and climate conditions — AI will instantly recommend the best crop to grow.</p>
 </section>
 
 <main class="main">
@@ -667,63 +528,63 @@
       <span class="info-item-val">Random Forest</span>
     </div>
     <div class="info-item">
-      <span class="info-item-key">Akurasi</span>
+      <span class="info-item-key">Accuracy</span>
       <span class="info-item-val" id="model-accuracy">—</span>
     </div>
     <div class="info-item">
-      <span class="info-item-key">Kelas tanaman</span>
-      <span class="info-item-val">22 jenis</span>
+      <span class="info-item-key">Crop classes</span>
+      <span class="info-item-val">22 types</span>
     </div>
     <div class="info-item">
-      <span class="info-item-key">Status API</span>
-      <span class="info-item-val" id="api-status">Menghubungkan...</span>
+      <span class="info-item-key">API Status</span>
+      <span class="info-item-val" id="api-status">Connecting...</span>
     </div>
   </div>
 
-  <!-- Form card -->
+  <!-- Soil card -->
   <div class="card">
-    <div class="card-label">Data tanah</div>
+    <div class="card-label">Soil data</div>
     <div class="form-grid">
       <div class="field">
         <label>Nitrogen (N) <span>0–140</span></label>
-        <input type="number" id="N" placeholder="mis. 90" min="0" max="140" step="1" />
+        <input type="number" id="N" placeholder="e.g. 90" min="0" max="140" step="1" />
         <span class="field-hint" id="hint-N"></span>
       </div>
       <div class="field">
-        <label>Fosfor (P) <span>5–145</span></label>
-        <input type="number" id="P" placeholder="mis. 42" min="5" max="145" step="1" />
+        <label>Phosphorus (P) <span>5–145</span></label>
+        <input type="number" id="P" placeholder="e.g. 42" min="5" max="145" step="1" />
         <span class="field-hint" id="hint-P"></span>
       </div>
       <div class="field">
-        <label>Kalium (K) <span>5–205</span></label>
-        <input type="number" id="K" placeholder="mis. 43" min="5" max="205" step="1" />
+        <label>Potassium (K) <span>5–205</span></label>
+        <input type="number" id="K" placeholder="e.g. 43" min="5" max="205" step="1" />
         <span class="field-hint" id="hint-K"></span>
       </div>
       <div class="field">
-        <label>pH tanah <span>3.5–9.5</span></label>
-        <input type="number" id="ph" placeholder="mis. 6.5" min="3.5" max="9.5" step="0.01" />
+        <label>Soil pH <span>3.5–9.5</span></label>
+        <input type="number" id="ph" placeholder="e.g. 6.5" min="3.5" max="9.5" step="0.01" />
         <span class="field-hint" id="hint-ph"></span>
       </div>
     </div>
   </div>
 
-  <!-- Form card 2 -->
+  <!-- Climate card -->
   <div class="card">
-    <div class="card-label">Data iklim</div>
+    <div class="card-label">Climate data</div>
     <div class="form-grid">
       <div class="field">
-        <label>Suhu <span>8–44 °C</span></label>
-        <input type="number" id="temperature" placeholder="mis. 20.8" min="8" max="44" step="0.01" />
+        <label>Temperature <span>8–44 °C</span></label>
+        <input type="number" id="temperature" placeholder="e.g. 20.8" min="8" max="44" step="0.01" />
         <span class="field-hint" id="hint-temperature"></span>
       </div>
       <div class="field">
-        <label>Kelembapan <span>14–100 %</span></label>
-        <input type="number" id="humidity" placeholder="mis. 82.0" min="14" max="100" step="0.01" />
+        <label>Humidity <span>14–100 %</span></label>
+        <input type="number" id="humidity" placeholder="e.g. 82.0" min="14" max="100" step="0.01" />
         <span class="field-hint" id="hint-humidity"></span>
       </div>
       <div class="field">
-        <label>Curah hujan <span>20–300 mm</span></label>
-        <input type="number" id="rainfall" placeholder="mis. 202.9" min="20" max="300" step="0.01" />
+        <label>Rainfall <span>20–300 mm</span></label>
+        <input type="number" id="rainfall" placeholder="e.g. 202.9" min="20" max="300" step="0.01" />
         <span class="field-hint" id="hint-rainfall"></span>
       </div>
     </div>
@@ -731,9 +592,9 @@
     <div class="submit-wrap">
       <button class="predict-btn" id="predict-btn" onclick="predict()">
         <div class="btn-spinner" id="spinner"></div>
-        <span id="btn-text">Prediksi Tanaman</span>
+        <span id="btn-text">Predict Crop</span>
       </button>
-      <p class="api-note">Pastikan Flask server berjalan di<br><code>http://localhost:5000</code></p>
+      <p class="api-note">Make sure the Flask server is running at<br><code>http://localhost:5000</code></p>
     </div>
   </div>
 
@@ -743,9 +604,16 @@
 </main>
 
 <!-- Pest Modal -->
-<div class="modal-overlay" id="pest-modal" onclick="closeModal(event)">
-  <div class="modal" id="modal-content">
-    <div id="modal-inner"></div>
+<div class="modal-overlay" id="pest-modal" onclick="closeModal('pest-modal', event)">
+  <div class="modal" id="pest-modal-content">
+    <div id="pest-modal-inner"></div>
+  </div>
+</div>
+
+<!-- Disease Modal -->
+<div class="modal-overlay" id="disease-modal" onclick="closeModal('disease-modal', event)">
+  <div class="modal" id="disease-modal-content">
+    <div id="disease-modal-inner"></div>
   </div>
 </div>
 
@@ -762,7 +630,9 @@ const RANGES = {
   rainfall:    [20,   300,  'mm'],
 };
 
-// Check API health on load
+const DAMAGE_LABEL = { high: '🔴 High damage', medium: '🟡 Medium damage', low: '🟢 Low damage' };
+
+// ── Health check ────────────────────────────────────────
 async function checkHealth() {
   try {
     const r = await fetch(`${API}/health`);
@@ -776,7 +646,7 @@ async function checkHealth() {
   }
 }
 
-// Live validation
+// ── Live validation ──────────────────────────────────────
 Object.keys(RANGES).forEach(id => {
   const input = document.getElementById(id);
   if (!input) return;
@@ -797,53 +667,54 @@ function validateField(id) {
   input.classList.toggle('valid', ok);
   input.classList.toggle('invalid', !ok);
   if (hint) {
-    hint.textContent = ok ? '' : `Harus antara ${lo}–${hi}${unit ? ' ' + unit : ''}`;
-    hint.className = 'field-hint' + (ok ? '' : ' error');
+    hint.textContent = ok ? '' : `Must be between ${lo}–${hi}${unit ? ' ' + unit : ''}`;
+    hint.className   = 'field-hint' + (ok ? '' : ' error');
   }
   return ok;
 }
 
+// ── Predict ──────────────────────────────────────────────
 async function predict() {
-  // Validate all
   let allOk = true;
   const payload = {};
+
   for (const id of Object.keys(RANGES)) {
     const val = document.getElementById(id)?.value;
-    if (!val) { allOk = false; document.getElementById('hint-' + id).textContent = 'Wajib diisi'; document.getElementById('hint-' + id).className = 'field-hint error'; continue; }
+    if (!val) {
+      allOk = false;
+      const hint = document.getElementById('hint-' + id);
+      if (hint) { hint.textContent = 'Required'; hint.className = 'field-hint error'; }
+      continue;
+    }
     if (!validateField(id)) allOk = false;
     payload[id] = parseFloat(val);
   }
   if (!allOk) return;
 
-  // Loading state
   const btn = document.getElementById('predict-btn');
   btn.disabled = true;
   document.getElementById('spinner').style.display = 'block';
-  document.getElementById('btn-text').textContent = 'Memproses...';
+  document.getElementById('btn-text').textContent = 'Processing...';
   document.getElementById('result-section').style.display = 'none';
 
   try {
-    const res = await fetch(`${API}/predict`, {
+    const res  = await fetch(`${API}/predict`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
     const data = await res.json();
-
-    if (!res.ok) {
-      showError(data);
-    } else {
-      showResult(data);
-    }
-  } catch (e) {
-    showError({ error: 'Tidak dapat terhubung ke server Flask.', details: ['Pastikan server berjalan: python app.py'] });
+    res.ok ? showResult(data) : showError(data);
+  } catch {
+    showError({ error: 'Cannot connect to Flask server.', details: ['Make sure the server is running: python app.py'] });
   } finally {
     btn.disabled = false;
     document.getElementById('spinner').style.display = 'none';
-    document.getElementById('btn-text').textContent = 'Prediksi Tanaman';
+    document.getElementById('btn-text').textContent = 'Predict Crop';
   }
 }
 
+// ── Show result ──────────────────────────────────────────
 async function showResult(data) {
   const sec = document.getElementById('result-section');
   sec.style.display = 'block';
@@ -851,7 +722,7 @@ async function showResult(data) {
     <div class="result-card">
       <div class="result-emoji">${data.emoji}</div>
       <div class="result-info">
-        <div class="result-label">Tanaman yang direkomendasikan</div>
+        <div class="result-label">Recommended crop</div>
         <div class="result-crop">${data.crop}</div>
         <div class="result-stats">
           <div class="stat">
@@ -875,7 +746,6 @@ async function showResult(data) {
     document.getElementById('conf-bar').style.width = data.confidence.toFixed(1) + '%';
   }, 50);
 
-  // Fetch crop detail info
   try {
     const r = await fetch(`${API}/crop-info/${data.crop}`);
     const info = await r.json();
@@ -883,12 +753,17 @@ async function showResult(data) {
   } catch { /* skip if offline */ }
 }
 
+// ── Render crop info ─────────────────────────────────────
 function renderCropInfo(crop, emoji, info) {
   const el = document.getElementById('crop-info-card');
   if (!el) return;
 
-  const pestTags    = (info.pests    || []).map(p => `<span class="tag tag-pest clickable" onclick="openPestModal('${p}')">${p} ↗</span>`).join('');
-  const diseaseTags = (info.diseases || []).map(d => `<span class="tag tag-disease">${d}</span>`).join('');
+  const pestTags    = (info.pests    || []).map(p =>
+    `<span class="tag tag-pest" onclick="openPestModal('${p}')">${p} ↗</span>`
+  ).join('');
+  const diseaseTags = (info.diseases || []).map(d =>
+    `<span class="tag tag-disease" onclick="openDiseaseModal('${d}')">${d} ↗</span>`
+  ).join('');
 
   el.innerHTML = `
     <div class="info-card">
@@ -896,34 +771,35 @@ function renderCropInfo(crop, emoji, info) {
         <span style="font-size:1.6rem;line-height:1">${emoji}</span>
         <div>
           <div class="info-card-title">${crop}</div>
-          <div class="info-card-subtitle">Panduan budidaya</div>
+          <div class="info-card-subtitle">Cultivation guide</div>
         </div>
       </div>
       <div class="info-grid">
         <div class="info-block">
-          <div class="info-block-key">🌱 Waktu tanam</div>
+          <div class="info-block-key">🌱 Planting season</div>
           <div class="info-block-val">${info.planting}</div>
         </div>
         <div class="info-block">
-          <div class="info-block-key">🌾 Masa panen</div>
+          <div class="info-block-key">🌾 Harvest time</div>
           <div class="info-block-val">${info.harvest}</div>
         </div>
         <div class="info-block" style="grid-column: 1 / -1">
-          <div class="info-block-key">💧 Perawatan</div>
+          <div class="info-block-key">💧 Care tips</div>
           <div class="info-block-val">${info.care}</div>
         </div>
         <div class="info-block">
-          <div class="info-block-key">🐛 Hama umum</div>
+          <div class="info-block-key">🐛 Common pests <span style="font-size:10px;opacity:.6">(click for details)</span></div>
           <div class="tags">${pestTags}</div>
         </div>
         <div class="info-block">
-          <div class="info-block-key">🦠 Penyakit umum</div>
+          <div class="info-block-key">🦠 Common diseases <span style="font-size:10px;opacity:.6">(click for details)</span></div>
           <div class="tags">${diseaseTags}</div>
         </div>
       </div>
     </div>`;
 }
 
+// ── Show error ───────────────────────────────────────────
 function showError(data) {
   const sec = document.getElementById('result-section');
   sec.style.display = 'block';
@@ -935,89 +811,128 @@ function showError(data) {
     </div>`;
 }
 
-const DAMAGE_LABEL = { high: '🔴 High damage', medium: '🟡 Medium damage', low: '🟢 Low damage' };
-
+// ── Pest modal ───────────────────────────────────────────
 async function openPestModal(pestName) {
   const overlay = document.getElementById('pest-modal');
-  const inner   = document.getElementById('modal-inner');
+  const inner   = document.getElementById('pest-modal-inner');
 
-  // Show loading
   overlay.classList.add('open');
-  inner.innerHTML = `
-    <div class="modal-img-placeholder">🐛</div>
-    <div class="modal-body">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">
-        <div style="width:140px;height:20px;background:var(--gray-50);border-radius:6px;animation:shimmer 1s infinite"></div>
-      </div>
-      <p style="font-size:13px;color:var(--text-muted)">Memuat informasi...</p>
-    </div>`;
+  inner.innerHTML = loadingHTML('🐛');
 
   try {
-    const infoRes = await fetch(`${API}/pest-info/${encodeURIComponent(pestName)}`);
-    const info    = await infoRes.json();
+    const res  = await fetch(`${API}/pest-info/${encodeURIComponent(pestName)}`);
+    const info = await res.json();
 
-    const dmgClass = `damage-${info.damage_level || 'medium'}`;
-    const dmgLabel = DAMAGE_LABEL[info.damage_level] || 'Unknown';
-    const pesticides = (info.pesticides || [])
-      .map(p => `<span class="pesticide-tag">${p}</span>`).join('');
+    const chemicals = (info.pesticides || [])
+      .map(p => `<span class="chemical-tag pesticide">${p}</span>`).join('');
 
     inner.innerHTML = `
-      <img src="${getPestImage(pestName)}" 
-     class="modal-img" 
-     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-<div class="modal-img-placeholder" style="display:none;">🐛</div>
+      <img src="pest_image/${pestName.toLowerCase().replace(/\s+/g,'_')}.jpg"
+           class="modal-img"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="modal-img-placeholder" style="display:none">🐛</div>
       <div class="modal-body">
-        <div class="modal-header">
-          <div class="modal-title">${pestName}</div>
-          <button class="modal-close" onclick="document.getElementById('pest-modal').classList.remove('open')">✕</button>
-        </div>
-        <span class="damage-badge ${dmgClass}">${dmgLabel}</span>
+        ${modalHeader(pestName, 'pest-modal')}
+        <span class="damage-badge damage-${info.damage_level || 'medium'}">${DAMAGE_LABEL[info.damage_level] || 'Unknown'}</span>
         <p class="modal-desc">${info.description || '—'}</p>
         <div class="modal-divider"></div>
+        ${modalSection('⚠ Attack symptoms',  info.symptoms)}
+        ${modalSection('🛡 Prevention',       info.prevention)}
+        ${modalSection('💊 Treatment',        info.treatment)}
         <div class="modal-section">
-          <div class="modal-section-key">⚠ Gejala serangan</div>
-          <div class="modal-section-val">${info.symptoms || '—'}</div>
-        </div>
-        <div class="modal-section">
-          <div class="modal-section-key">🛡 Pencegahan</div>
-          <div class="modal-section-val">${info.prevention || '—'}</div>
-        </div>
-        <div class="modal-section">
-          <div class="modal-section-key">💊 Penanganan</div>
-          <div class="modal-section-val">${info.treatment || '—'}</div>
-        </div>
-        <div class="modal-section">
-          <div class="modal-section-key">🧪 Pestisida</div>
-          <div class="pesticide-tags">${pesticides}</div>
+          <div class="modal-section-key">🧪 Pesticides</div>
+          <div class="chemical-tags">${chemicals}</div>
         </div>
         <div class="modal-divider"></div>
-        <div class="season-row">🗓 Musim aktif: <strong>${info.active_season || '—'}</strong></div>
+        <div class="season-row">🗓 Active season: <strong>${info.active_season || '—'}</strong></div>
       </div>`;
   } catch {
+    inner.innerHTML = errorModalHTML(pestName, 'pest-modal');
+  }
+}
+
+// ── Disease modal ────────────────────────────────────────
+async function openDiseaseModal(diseaseName) {
+  const overlay = document.getElementById('disease-modal');
+  const inner   = document.getElementById('disease-modal-inner');
+
+  overlay.classList.add('open');
+  inner.innerHTML = loadingHTML('🦠');
+
+  try {
+    const res  = await fetch(`${API}/disease-info/${encodeURIComponent(diseaseName)}`);
+    const info = await res.json();
+
+    const chemicals = (info.chemicals || [])
+      .map(c => `<span class="chemical-tag fungicide">${c}</span>`).join('');
+
     inner.innerHTML = `
+      <div class="modal-img-placeholder">🦠</div>
       <div class="modal-body">
-        <div class="modal-header">
-          <div class="modal-title">${pestName}</div>
-          <button class="modal-close" onclick="document.getElementById('pest-modal').classList.remove('open')">✕</button>
+        ${modalHeader(diseaseName, 'disease-modal')}
+        <span class="damage-badge damage-${info.damage_level || 'medium'}">${DAMAGE_LABEL[info.damage_level] || 'Unknown'}</span>
+        <p class="modal-desc">${info.description || '—'}</p>
+        <div class="modal-divider"></div>
+        ${modalSection('⚠ Symptoms',    info.symptoms)}
+        ${modalSection('🛡 Prevention', info.prevention)}
+        ${modalSection('💊 Treatment',  info.treatment)}
+        <div class="modal-section">
+          <div class="modal-section-key">🧪 Chemicals / Fungicides</div>
+          <div class="chemical-tags">${chemicals}</div>
         </div>
-        <p style="color:var(--red-600);font-size:14px">Gagal memuat info. Pastikan server berjalan.</p>
+        <div class="modal-divider"></div>
+        <div class="season-row">🗓 Active season: <strong>${info.active_season || '—'}</strong></div>
       </div>`;
-  }
-}
-function getPestImage(pestName) {
-  return `pest_image/${pestName.toLowerCase().replace(/\s+/g, '_')}.jpg`;
-}
-
-
-function closeModal(e) {
-  if (e.target === document.getElementById('pest-modal')) {
-    document.getElementById('pest-modal').classList.remove('open');
+  } catch {
+    inner.innerHTML = errorModalHTML(diseaseName, 'disease-modal');
   }
 }
 
-// Close with Escape key
+// ── Modal helpers ────────────────────────────────────────
+function loadingHTML(icon) {
+  return `
+    <div class="modal-img-placeholder">${icon}</div>
+    <div class="modal-body">
+      <div style="width:140px;height:20px;background:var(--gray-50);border-radius:6px;margin-bottom:1rem"></div>
+      <p style="font-size:13px;color:var(--text-muted)">Loading information...</p>
+    </div>`;
+}
+
+function errorModalHTML(name, modalId) {
+  return `
+    <div class="modal-body">
+      ${modalHeader(name, modalId)}
+      <p style="color:var(--red-600);font-size:14px">Failed to load info. Make sure the server is running.</p>
+    </div>`;
+}
+
+function modalHeader(name, modalId) {
+  return `
+    <div class="modal-header">
+      <div class="modal-title">${name}</div>
+      <button class="modal-close" onclick="document.getElementById('${modalId}').classList.remove('open')">✕</button>
+    </div>`;
+}
+
+function modalSection(key, val) {
+  return `
+    <div class="modal-section">
+      <div class="modal-section-key">${key}</div>
+      <div class="modal-section-val">${val || '—'}</div>
+    </div>`;
+}
+
+function closeModal(modalId, e) {
+  if (e.target === document.getElementById(modalId)) {
+    document.getElementById(modalId).classList.remove('open');
+  }
+}
+
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') document.getElementById('pest-modal').classList.remove('open');
+  if (e.key === 'Escape') {
+    document.getElementById('pest-modal').classList.remove('open');
+    document.getElementById('disease-modal').classList.remove('open');
+  }
 });
 
 checkHealth();
