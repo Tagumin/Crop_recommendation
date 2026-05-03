@@ -42,7 +42,7 @@ CROP_INFO = {
     "mungbean":    {"planting": "Warm season",                    "harvest": "2–3 months",                   "care": "Needs warm climate and light soil",                                   "pests": ["whiteflies"],                        "diseases": ["powdery mildew"]},
     "blackgram":   {"planting": "Rainy season",                   "harvest": "3–4 months",                   "care": "Prefers warm climate and moderate rainfall",                          "pests": ["aphids"],                            "diseases": ["leaf curl virus"]},
     "lentil":      {"planting": "Cool season",                    "harvest": "3–4 months",                   "care": "Needs well-drained soil and low humidity",                            "pests": ["aphids"],                            "diseases": ["rust"]},
-    "pomegranate": {"planting": "Spring",                         "harvest": "5–7 months after flowering",   "care": "Needs dry climate and minimal irrigation",                            "pests": ["fruit borer"],                       "diseases": ["bacterial blight"]},
+    "pomegranate": {"planting": "Spring",                         "harvest": "5–7 months after flowering",   "care": "Needs dry climate and minimal irrigation",                            "pests": ["fruit borer"],                       "diseases": ["bacterial leaf blight"]},
     "banana":      {"planting": "Anytime in tropical climate",    "harvest": "9–12 months",                  "care": "Requires rich soil, high humidity, and frequent watering",            "pests": ["weevils"],                           "diseases": ["panama disease"]},
     "mango":       {"planting": "Early rainy season",             "harvest": "3–5 years",                    "care": "Needs full sunlight and well-drained soil",                           "pests": ["fruit flies"],                       "diseases": ["anthracnose"]},
     "grapes":      {"planting": "Spring",                         "harvest": "1–3 years",                    "care": "Requires pruning, sunlight, and dry climate",                         "pests": ["mites"],                             "diseases": ["powdery mildew"]},
@@ -53,8 +53,8 @@ CROP_INFO = {
     "papaya":      {"planting": "Anytime in tropical climate",    "harvest": "6–9 months",                   "care": "Needs well-drained soil and frequent watering",                       "pests": ["aphids"],                            "diseases": ["papaya ringspot virus"]},
     "coconut":     {"planting": "Rainy season",                   "harvest": "4–6 years",                    "care": "Needs sandy soil and coastal climate",                                "pests": ["rhinoceros beetle"],                 "diseases": ["bud rot"]},
     "cotton":      {"planting": "Warm season",                    "harvest": "5–6 months",                   "care": "Requires full sunlight and moderate water",                           "pests": ["bollworm"],                          "diseases": ["wilt"]},
-    "jute":        {"planting": "Rainy season",                   "harvest": "4–5 months",                   "care": "Needs high humidity and fertile soil",                                "pests": ["stem weevil"],                       "diseases": ["rot"]},
-    "coffee":      {"planting": "Rainy season",                   "harvest": "3–4 years",                    "care": "Needs shade, high altitude, and regular rainfall",                    "pests": ["coffee borer"],                      "diseases": ["leaf rust"]},
+    "jute":        {"planting": "Rainy season",                   "harvest": "4–5 months",                   "care": "Needs high humidity and fertile soil",                                "pests": ["stem weevil"],                       "diseases": ["root rot"]},
+    "coffee":      {"planting": "Rainy season",                   "harvest": "3–4 years",                    "care": "Needs shade, high altitude, and regular rainfall",                    "pests": ["coffee borer"],                      "diseases": ["rust"]},
 }
 
 CROP_EMOJI = {
@@ -72,7 +72,7 @@ PEST_INFO = {
     "beetles":          {"description": "A broad group of insects; many species feed on leaves, stems, roots, or stored crops.",                           "symptoms": "Holes in leaves, damaged roots, seed or grain loss",                                    "damage_level": "medium", "prevention": "Crop rotation, field sanitation, proper storage",                                            "treatment": "Use traps or apply insecticide depending on beetle species",                                 "pesticides": ["Carbaryl", "Cypermethrin", "Deltamethrin"],                       "active_season": "Warm season"},
     "bollworm":         {"description": "Larvae that attack cotton and fruiting crops by feeding on buds, flowers, and bolls.",                           "symptoms": "Damaged buds, bored bolls, reduced fruit set",                                           "damage_level": "high",   "prevention": "Use resistant varieties, destroy crop residues, monitor with traps",                        "treatment": "Apply insecticide when larvae are small",                                                    "pesticides": ["Emamectin benzoate", "Spinetoram", "Indoxacarb"],                 "active_season": "Warm season"},
     "codling moth":     {"description": "A major pest of apples whose larvae burrow into fruits and damage the core.",                                    "symptoms": "Fruit entry holes, frass near fruit surface, premature fruit drop",                     "damage_level": "high",   "prevention": "Use pheromone traps, remove fallen fruit, bag fruits if needed",                            "treatment": "Apply insecticide during moth flight period",                                                "pesticides": ["Lambda-cyhalothrin", "Chlorantraniliprole", "Spinosad"],          "active_season": "Spring to early summer"},
-    "coffee borer":     {"description": "A beetle that bores into coffee berries and reduces bean quality and yield.",                                    "symptoms": "Small holes in berries, premature berry drop, low bean quality",                        "damage_level": "high",   "prevention": "Harvest on time, remove leftover berries, maintain field hygiene",                          "treatment": "Use traps and targeted control during infestation",                                          "pesticides": ["Chlorpyrifos", "Cypermethrin", "Endosulfan"],                     "active_season": "Rainy season"},
+    "coffee borer":     {"description": "A beetle that bores into coffee berries and reduces bean quality and yield.",                                    "symptoms": "Small holes in berries, premature berry drop, low bean quality",                        "damage_level": "high",   "prevention": "Harvest on time, remove leftover berries, maintain field hygiene",                          "treatment": "Use traps and targeted control during infestation",                                          "pesticides": ["Chlorpyrifos", "Cypermethrin", "Beauveria bassiana"],                     "active_season": "Rainy season"},
     "corn borer":       {"description": "Larvae that tunnel into maize stems and ears, weakening the plant.",                                            "symptoms": "Small holes in stems, broken stems, frass, poor ear development",                       "damage_level": "high",   "prevention": "Early planting, resistant varieties, remove crop residues",                                 "treatment": "Apply insecticide at early larval stage",                                                    "pesticides": ["Chlorantraniliprole", "Lambda-cyhalothrin", "Emamectin benzoate"],"active_season": "Rainy season"},
     "fruit borer":      {"description": "Larvae that bore into fruits and make them rot or become unmarketable.",                                         "symptoms": "Holes in fruits, rotting tissue, larval entry points",                                   "damage_level": "high",   "prevention": "Bag fruits, field sanitation, remove infested fruits",                                      "treatment": "Use pheromone traps and insecticide when needed",                                            "pesticides": ["Spinosad", "Lambda-cyhalothrin", "Indoxacarb"],                   "active_season": "Warm and humid seasons"},
     "fruit flies":      {"description": "Insects that lay eggs inside fruits; larvae feed internally and cause decay.",                                   "symptoms": "Soft spots, premature fruit drop, maggots inside fruit",                                 "damage_level": "high",   "prevention": "Use bait traps, collect fallen fruits, cover fruits",                                       "treatment": "Use protein bait sprays or targeted control",                                                "pesticides": ["Malathion", "Spinosad", "Lambda-cyhalothrin"],                    "active_season": "Warm and humid seasons"},
@@ -81,7 +81,7 @@ PEST_INFO = {
     "pod fly":          {"description": "A pest that lays eggs in pods; larvae feed inside and damage the seeds.",                                        "symptoms": "Swollen pods, discolored seeds, reduced seed filling",                                   "damage_level": "medium", "prevention": "Timely sowing, field sanitation, destroy infected pods",                                    "treatment": "Use targeted insecticide during pod development",                                            "pesticides": ["Dimethoate", "Lambda-cyhalothrin", "Cypermethrin"],               "active_season": "Rainy season"},
     "rice weevil":      {"description": "Small beetle that damages stored rice grains and causes post-harvest losses.",                                   "symptoms": "Hollow grains, powdery residue, grain weight loss",                                      "damage_level": "high",   "prevention": "Store rice in sealed containers, keep humidity low",                                        "treatment": "Use grain protectants or fumigation for severe storage infestation",                         "pesticides": ["Malathion", "Pirimiphos-methyl", "Deltamethrin"],                 "active_season": "Year-round, worse in dry season"},
     "rhinoceros beetle":{"description": "A large beetle that attacks coconut palms by boring into the crown.",                                            "symptoms": "Cuts on young fronds, V-shaped cuts, reduced growth",                                    "damage_level": "high",   "prevention": "Remove breeding sites, maintain field sanitation, use traps",                               "treatment": "Apply insecticide to breeding sites or crown if needed",                                     "pesticides": ["Chlorpyrifos", "Imidacloprid", "Carbaryl"],                       "active_season": "Rainy season"},
-    "stem borer":       {"description": "Caterpillar that bores into stems and disrupts nutrient flow in plants.",                                        "symptoms": "Dead heart in vegetative stage, white ear in reproductive stage",                        "damage_level": "high",   "prevention": "Use resistant varieties, adjust planting date, remove stubble",                             "treatment": "Apply granular insecticide at plant base or early larval stage",                             "pesticides": ["Carbofuran", "Chlorpyrifos", "Fipronil"],                         "active_season": "Rainy season"},
+    "stem borer":       {"description": "Caterpillar that bores into stems and disrupts nutrient flow in plants.",                                        "symptoms": "Dead heart in vegetative stage, white ear in reproductive stage",                        "damage_level": "high",   "prevention": "Use resistant varieties, adjust planting date, remove stubble",                             "treatment": "Apply granular insecticide at plant base or early larval stage",                             "pesticides": ["Chlorantraniliprole", "Chlorpyrifos", "Fipronil"],                         "active_season": "Rainy season"},
     "stem weevil":      {"description": "Insects that attack plant stems and can cause wilting and poor growth.",                                         "symptoms": "Stem tunnels, wilting, weakened stems, poor vigor",                                      "damage_level": "medium", "prevention": "Crop rotation, destroy residues, healthy planting material",                                "treatment": "Apply insecticide during early infestation",                                                 "pesticides": ["Imidacloprid", "Lambda-cyhalothrin", "Chlorpyrifos"],             "active_season": "Rainy season"},
     "weevils":          {"description": "A group of beetles that attack stored grains or field crops by feeding on seeds and plant tissue.",               "symptoms": "Small holes in grains, grain powder, reduced seed quality",                              "damage_level": "high",   "prevention": "Dry grains properly, store in sealed containers, clean storage areas",                      "treatment": "Use grain protectant or fumigation for storage infestation",                                 "pesticides": ["Malathion", "Pirimiphos-methyl", "Deltamethrin"],                 "active_season": "Year-round"},
     "whiteflies":       {"description": "Small flying insects that suck sap and spread plant viruses.",                                                   "symptoms": "Leaf yellowing, sticky honeydew, sooty mold, leaf curling",                              "damage_level": "medium", "prevention": "Use yellow sticky traps, remove weeds, avoid excess nitrogen",                              "treatment": "Apply insecticidal soap, neem spray, or systemic insecticide if severe",                    "pesticides": ["Imidacloprid", "Thiamethoxam", "Buprofezin"],                     "active_season": "Warm and dry seasons"},
@@ -179,15 +179,15 @@ DISEASE_INFO = {
         "damage_level": "high",
         "active_season": "Warm, dry seasons — peak whitefly activity"
     },
-    "bacterial blight": {
-        "description": "A bacterial disease caused by Xanthomonas or Pseudomonas species, affecting a wide range of fruit and vegetable crops.",
-        "symptoms": "Water-soaked lesions that turn dark brown and necrotic; gummy bacterial exudate on infected fruits or stems",
-        "treatment": "Apply copper-based bactericide; prune infected branches and sterilize pruning tools between cuts",
-        "prevention": "Use certified disease-free planting material, avoid plant injuries, maintain strict field sanitation",
-        "chemicals": ["Copper hydroxide", "Copper oxychloride", "Streptomycin sulfate"],
-        "damage_level": "medium",
-        "active_season": "Warm, rainy season"
-    },
+    # "bacterial blight": {
+    #     "description": "A bacterial disease caused by Xanthomonas or Pseudomonas species, affecting a wide range of fruit and vegetable crops.",
+    #     "symptoms": "Water-soaked lesions that turn dark brown and necrotic; gummy bacterial exudate on infected fruits or stems",
+    #     "treatment": "Apply copper-based bactericide; prune infected branches and sterilize pruning tools between cuts",
+    #     "prevention": "Use certified disease-free planting material, avoid plant injuries, maintain strict field sanitation",
+    #     "chemicals": ["Copper hydroxide", "Copper oxychloride", "Streptomycin sulfate"],
+    #     "damage_level": "medium",
+    #     "active_season": "Warm, rainy season"
+    # },
     "panama disease": {
         "description": "A devastating soilborne Fusarium wilt disease of banana caused by Fusarium oxysporum f.sp. cubense. No effective cure exists.",
         "symptoms": "Yellowing of older outer leaves progressing inward, wilting, dark brown vascular discoloration inside the pseudostem",
@@ -251,24 +251,24 @@ DISEASE_INFO = {
         "damage_level": "high",
         "active_season": "Wet, humid conditions"
     },
-    "rot": {
-        "description": "A broad category of fungal or bacterial decay affecting stems, roots, or stored plant material under wet conditions.",
-        "symptoms": "Soft, discolored, and foul-smelling decay on stems, roots, or harvested plant material; structural collapse of tissue",
-        "treatment": "Apply appropriate fungicide or bactericide; remove and destroy all infected plant material promptly",
-        "prevention": "Ensure proper drainage and avoid waterlogging, practice crop rotation and field sanitation, harvest at correct maturity",
-        "chemicals": ["Mancozeb", "Copper oxychloride", "Propamocarb"],
-        "damage_level": "medium",
-        "active_season": "Wet season, waterlogged soils"
-    },
-    "leaf rust": {
-        "description": "A fungal disease of coffee caused by Hemileia vastatrix, considered the most economically damaging coffee disease worldwide.",
-        "symptoms": "Pale yellow to orange powdery pustules on the underside of leaves; premature defoliation and severe yield reduction",
-        "treatment": "Apply fungicide (Triadimefon or Propiconazole) at the onset of infection; repeat applications during the wet season",
-        "prevention": "Use rust-resistant coffee varieties, manage shade and plant density, ensure adequate nutrition to strengthen plant immunity",
-        "chemicals": ["Triadimefon", "Propiconazole", "Copper hydroxide"],
-        "damage_level": "medium",
-        "active_season": "Rainy season, high humidity"
-    },
+    # "rot": {
+    #     "description": "A broad category of fungal or bacterial decay affecting stems, roots, or stored plant material under wet conditions.",
+    #     "symptoms": "Soft, discolored, and foul-smelling decay on stems, roots, or harvested plant material; structural collapse of tissue",
+    #     "treatment": "Apply appropriate fungicide or bactericide; remove and destroy all infected plant material promptly",
+    #     "prevention": "Ensure proper drainage and avoid waterlogging, practice crop rotation and field sanitation, harvest at correct maturity",
+    #     "chemicals": ["Mancozeb", "Copper oxychloride", "Propamocarb"],
+    #     "damage_level": "medium",
+    #     "active_season": "Wet season, waterlogged soils"
+    # },
+    # "leaf rust": {
+    #     "description": "A fungal disease of coffee caused by Hemileia vastatrix, considered the most economically damaging coffee disease worldwide.",
+    #     "symptoms": "Pale yellow to orange powdery pustules on the underside of leaves; premature defoliation and severe yield reduction",
+    #     "treatment": "Apply fungicide (Triadimefon or Propiconazole) at the onset of infection; repeat applications during the wet season",
+    #     "prevention": "Use rust-resistant coffee varieties, manage shade and plant density, ensure adequate nutrition to strengthen plant immunity",
+    #     "chemicals": ["Triadimefon", "Propiconazole", "Copper hydroxide"],
+    #     "damage_level": "medium",
+    #     "active_season": "Rainy season, high humidity"
+    # },
 }
 
 
@@ -344,6 +344,9 @@ def disease_info(disease_name):
 def pest_image(filename):
     return send_from_directory("pest_image", filename)
 
+@app.route("/disease_image/<path:filename>")
+def disease_image(filename):
+    return send_from_directory("disease_image", filename)
 
 @app.route("/health")
 def health():

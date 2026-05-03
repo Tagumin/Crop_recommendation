@@ -1,724 +1,1190 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CropSense — AI Crop Recommendation</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CropSense — AI Crop Recommendation</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-  :root {
-    --green-50:  #EAF3DE;
-    --green-100: #C0DD97;
-    --green-200: #97C459;
-    --green-400: #639922;
-    --green-600: #3B6D11;
-    --green-800: #27500A;
-    --green-900: #173404;
-    --amber-50:  #FAEEDA;
-    --amber-100: #FAC775;
-    --amber-400: #BA7517;
-    --teal-50:   #E1F5EE;
-    --teal-200:  #5DCAA5;
-    --teal-600:  #0F6E56;
-    --gray-50:   #F1EFE8;
-    --gray-100:  #D3D1C7;
-    --gray-400:  #888780;
-    --gray-600:  #5F5E5A;
-    --gray-900:  #2C2C2A;
-    --red-50:    #FCEBEB;
-    --red-400:   #E24B4A;
-    --red-600:   #A32D2D;
-    --purple-50: #F3EEFF;
-    --purple-400:#7C4DBA;
-    --purple-600:#5A2F99;
-    --bg: #F7F5EE;
-    --surface: #FFFFFF;
-    --text-primary: #1A1A14;
-    --text-secondary: #5F5E5A;
-    --text-muted: #888780;
-    --border: rgba(0,0,0,0.1);
-    --border-strong: rgba(0,0,0,0.18);
-  }
+      :root {
+        --green-50: #eaf3de;
+        --green-100: #c0dd97;
+        --green-200: #97c459;
+        --green-400: #639922;
+        --green-600: #3b6d11;
+        --green-800: #27500a;
+        --green-900: #173404;
+        --amber-50: #faeeda;
+        --amber-100: #fac775;
+        --amber-400: #ba7517;
+        --teal-50: #e1f5ee;
+        --teal-200: #5dcaa5;
+        --teal-600: #0f6e56;
+        --gray-50: #f1efe8;
+        --gray-100: #d3d1c7;
+        --gray-400: #888780;
+        --gray-600: #5f5e5a;
+        --gray-900: #2c2c2a;
+        --red-50: #fcebeb;
+        --red-400: #e24b4a;
+        --red-600: #a32d2d;
+        --purple-50: #f3eeff;
+        --purple-400: #7c4dba;
+        --purple-600: #5a2f99;
+        --bg: #f7f5ee;
+        --surface: #ffffff;
+        --text-primary: #1a1a14;
+        --text-secondary: #5f5e5a;
+        --text-muted: #888780;
+        --border: rgba(0, 0, 0, 0.1);
+        --border-strong: rgba(0, 0, 0, 0.18);
+      }
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #141410;
-      --surface: #1E1E18;
-      --text-primary: #F0EDE4;
-      --text-secondary: #B4B2A9;
-      --text-muted: #5F5E5A;
-      --border: rgba(255,255,255,0.08);
-      --border-strong: rgba(255,255,255,0.14);
-      --purple-50: rgba(124,77,186,0.15);
-    }
-  }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #141410;
+          --surface: #1e1e18;
+          --text-primary: #f0ede4;
+          --text-secondary: #b4b2a9;
+          --text-muted: #5f5e5a;
+          --border: rgba(255, 255, 255, 0.08);
+          --border-strong: rgba(255, 255, 255, 0.14);
+          --purple-50: rgba(124, 77, 186, 0.15);
+        }
+      }
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text-primary);
-    min-height: 100vh;
-    line-height: 1.6;
-  }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--bg);
+        color: var(--text-primary);
+        min-height: 100vh;
+        line-height: 1.6;
+      }
 
-  /* ─── Hero ─── */
-  .hero {
-    padding: 5rem 2rem 3rem;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-  .hero::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse 80% 60% at 50% 0%, var(--green-50) 0%, transparent 70%);
-    pointer-events: none;
-    opacity: 0.6;
-  }
-  @media (prefers-color-scheme: dark) {
-    .hero::before { background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(59,109,17,0.18) 0%, transparent 70%); opacity: 1; }
-  }
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--green-50);
-    color: var(--green-600);
-    border: 0.5px solid var(--green-100);
-    border-radius: 100px;
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    padding: 5px 14px;
-    text-transform: uppercase;
-    margin-bottom: 1.5rem;
-  }
-  @media (prefers-color-scheme: dark) {
-    .badge { background: rgba(59,109,17,0.2); color: var(--green-100); border-color: rgba(192,221,151,0.2); }
-  }
-  .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green-400); animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+      /* ─── Hero ─── */
+      .hero {
+        padding: 5rem 2rem 3rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          ellipse 80% 60% at 50% 0%,
+          var(--green-50) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+        opacity: 0.6;
+      }
+      @media (prefers-color-scheme: dark) {
+        .hero::before {
+          background: radial-gradient(
+            ellipse 80% 60% at 50% 0%,
+            rgba(59, 109, 17, 0.18) 0%,
+            transparent 70%
+          );
+          opacity: 1;
+        }
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--green-50);
+        color: var(--green-600);
+        border: 0.5px solid var(--green-100);
+        border-radius: 100px;
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.06em;
+        padding: 5px 14px;
+        text-transform: uppercase;
+        margin-bottom: 1.5rem;
+      }
+      @media (prefers-color-scheme: dark) {
+        .badge {
+          background: rgba(59, 109, 17, 0.2);
+          color: var(--green-100);
+          border-color: rgba(192, 221, 151, 0.2);
+        }
+      }
+      .badge-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--green-400);
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.5;
+          transform: scale(1.3);
+        }
+      }
 
-  h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(2.8rem, 6vw, 5rem);
-    font-weight: 400;
-    line-height: 1.05;
-    letter-spacing: -0.02em;
-    margin-bottom: 1.25rem;
-    color: var(--text-primary);
-  }
-  h1 em { font-style: italic; color: var(--green-600); }
-  @media (prefers-color-scheme: dark) { h1 em { color: var(--green-100); } }
+      h1 {
+        font-family: "DM Serif Display", serif;
+        font-size: clamp(2.8rem, 6vw, 5rem);
+        font-weight: 400;
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+        margin-bottom: 1.25rem;
+        color: var(--text-primary);
+      }
+      h1 em {
+        font-style: italic;
+        color: var(--green-600);
+      }
+      @media (prefers-color-scheme: dark) {
+        h1 em {
+          color: var(--green-100);
+        }
+      }
 
-  .subtitle {
-    font-size: 1.1rem;
-    color: var(--text-secondary);
-    max-width: 480px;
-    margin: 0 auto;
-    font-weight: 300;
-  }
+      .subtitle {
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        max-width: 480px;
+        margin: 0 auto;
+        font-weight: 300;
+      }
 
-  /* ─── Main Layout ─── */
-  .main {
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 0 1.5rem 5rem;
-  }
+      /* ─── Main Layout ─── */
+      .main {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 0 1.5rem 5rem;
+      }
 
-  /* ─── Card ─── */
-  .card {
-    background: var(--surface);
-    border: 0.5px solid var(--border-strong);
-    border-radius: 20px;
-    padding: 2rem;
-    margin-bottom: 1.25rem;
-  }
+      /* ─── Card ─── */
+      .card {
+        background: var(--surface);
+        border: 0.5px solid var(--border-strong);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 1.25rem;
+      }
 
-  .card-label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-muted);
-    margin-bottom: 1.25rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .card-label::after { content: ''; flex: 1; height: 0.5px; background: var(--border); }
+      .card-label {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .card-label::after {
+        content: "";
+        flex: 1;
+        height: 0.5px;
+        background: var(--border);
+      }
 
-  /* ─── Form Grid ─── */
-  .form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-  }
+      /* ─── Form Grid ─── */
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+      }
 
-  .field { display: flex; flex-direction: column; gap: 6px; }
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
 
-  .field label {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
+      .field label {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
 
-  .field label span {
-    font-size: 11px;
-    font-weight: 400;
-    color: var(--text-muted);
-    background: var(--gray-50);
-    padding: 2px 8px;
-    border-radius: 100px;
-  }
-  @media (prefers-color-scheme: dark) { .field label span { background: rgba(255,255,255,0.06); } }
+      .field label span {
+        font-size: 11px;
+        font-weight: 400;
+        color: var(--text-muted);
+        background: var(--gray-50);
+        padding: 2px 8px;
+        border-radius: 100px;
+      }
+      @media (prefers-color-scheme: dark) {
+        .field label span {
+          background: rgba(255, 255, 255, 0.06);
+        }
+      }
 
-  .field input {
-    width: 100%;
-    height: 42px;
-    padding: 0 14px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    color: var(--text-primary);
-    background: var(--bg);
-    border: 0.5px solid var(--border-strong);
-    border-radius: 10px;
-    outline: none;
-    transition: border-color 0.15s, box-shadow 0.15s;
-    -moz-appearance: textfield;
-  }
-  .field input::-webkit-inner-spin-button { -webkit-appearance: none; }
-  .field input:hover { border-color: var(--green-200); }
-  .field input:focus { border-color: var(--green-400); box-shadow: 0 0 0 3px rgba(99,153,34,0.12); }
-  .field input.invalid { border-color: var(--red-400); box-shadow: 0 0 0 3px rgba(226,75,74,0.1); }
-  .field input.valid { border-color: var(--teal-200); }
+      .field input {
+        width: 100%;
+        height: 42px;
+        padding: 0 14px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 15px;
+        color: var(--text-primary);
+        background: var(--bg);
+        border: 0.5px solid var(--border-strong);
+        border-radius: 10px;
+        outline: none;
+        transition:
+          border-color 0.15s,
+          box-shadow 0.15s;
+        -moz-appearance: textfield;
+      }
+      .field input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+      }
+      .field input:hover {
+        border-color: var(--green-200);
+      }
+      .field input:focus {
+        border-color: var(--green-400);
+        box-shadow: 0 0 0 3px rgba(99, 153, 34, 0.12);
+      }
+      .field input.invalid {
+        border-color: var(--red-400);
+        box-shadow: 0 0 0 3px rgba(226, 75, 74, 0.1);
+      }
+      .field input.valid {
+        border-color: var(--teal-200);
+      }
 
-  .field-hint { font-size: 11px; color: var(--text-muted); min-height: 16px; }
-  .field-hint.error { color: var(--red-600); }
+      .field-hint {
+        font-size: 11px;
+        color: var(--text-muted);
+        min-height: 16px;
+      }
+      .field-hint.error {
+        color: var(--red-600);
+      }
 
-  /* ─── Submit ─── */
-  .submit-wrap { margin-top: 1.5rem; display: flex; align-items: center; gap: 14px; }
+      /* ─── Submit ─── */
+      .submit-wrap {
+        margin-top: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
 
-  button.predict-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 2rem;
-    height: 50px;
-    background: var(--green-600);
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.15s, transform 0.1s;
-    flex-shrink: 0;
-  }
-  button.predict-btn:hover { background: var(--green-800); }
-  button.predict-btn:active { transform: scale(0.98); }
-  button.predict-btn:disabled { background: var(--gray-400); cursor: not-allowed; }
+      button.predict-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 2rem;
+        height: 50px;
+        background: var(--green-600);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        transition:
+          background 0.15s,
+          transform 0.1s;
+        flex-shrink: 0;
+      }
+      button.predict-btn:hover {
+        background: var(--green-800);
+      }
+      button.predict-btn:active {
+        transform: scale(0.98);
+      }
+      button.predict-btn:disabled {
+        background: var(--gray-400);
+        cursor: not-allowed;
+      }
 
-  .btn-spinner {
-    width: 16px; height: 16px;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-top-color: #fff;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    display: none;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+      .btn-spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        display: none;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
 
-  .api-note { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+      .api-note {
+        font-size: 12px;
+        color: var(--text-muted);
+        line-height: 1.5;
+      }
 
-  /* ─── Result ─── */
-  #result-section { display: none; }
+      /* ─── Result ─── */
+      #result-section {
+        display: none;
+      }
 
-  .result-card {
-    background: linear-gradient(135deg, var(--green-50) 0%, var(--teal-50) 100%);
-    border: 0.5px solid var(--green-100);
-    border-radius: 20px;
-    padding: 2rem;
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    animation: fadeUp 0.4s ease both;
-  }
-  @media (prefers-color-scheme: dark) {
-    .result-card {
-      background: linear-gradient(135deg, rgba(59,109,17,0.15) 0%, rgba(15,110,86,0.1) 100%);
-      border-color: rgba(192,221,151,0.15);
-    }
-  }
-  @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+      .result-card {
+        background: linear-gradient(
+          135deg,
+          var(--green-50) 0%,
+          var(--teal-50) 100%
+        );
+        border: 0.5px solid var(--green-100);
+        border-radius: 20px;
+        padding: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        animation: fadeUp 0.4s ease both;
+      }
+      @media (prefers-color-scheme: dark) {
+        .result-card {
+          background: linear-gradient(
+            135deg,
+            rgba(59, 109, 17, 0.15) 0%,
+            rgba(15, 110, 86, 0.1) 100%
+          );
+          border-color: rgba(192, 221, 151, 0.15);
+        }
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
 
-  .result-emoji { font-size: 4rem; line-height: 1; flex-shrink: 0; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.12)); }
+      .result-emoji {
+        font-size: 4rem;
+        line-height: 1;
+        flex-shrink: 0;
+        filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.12));
+      }
 
-  .result-info { flex: 1; }
-  .result-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--green-600); margin-bottom: 4px; }
-  @media (prefers-color-scheme: dark) { .result-label { color: var(--green-100); } }
+      .result-info {
+        flex: 1;
+      }
+      .result-label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--green-600);
+        margin-bottom: 4px;
+      }
+      @media (prefers-color-scheme: dark) {
+        .result-label {
+          color: var(--green-100);
+        }
+      }
 
-  .result-crop {
-    font-family: 'DM Serif Display', serif;
-    font-size: 2.5rem;
-    line-height: 1.1;
-    color: var(--text-primary);
-    text-transform: capitalize;
-    margin-bottom: 0.75rem;
-  }
+      .result-crop {
+        font-family: "DM Serif Display", serif;
+        font-size: 2.5rem;
+        line-height: 1.1;
+        color: var(--text-primary);
+        text-transform: capitalize;
+        margin-bottom: 0.75rem;
+      }
 
-  .result-stats { display: flex; gap: 1.5rem; flex-wrap: wrap; }
-  .stat { display: flex; flex-direction: column; gap: 2px; }
-  .stat-val { font-size: 1.4rem; font-weight: 600; color: var(--green-800); }
-  @media (prefers-color-scheme: dark) { .stat-val { color: var(--green-100); } }
-  .stat-key { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+      .result-stats {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+      }
+      .stat {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .stat-val {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: var(--green-800);
+      }
+      @media (prefers-color-scheme: dark) {
+        .stat-val {
+          color: var(--green-100);
+        }
+      }
+      .stat-key {
+        font-size: 11px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
 
-  .conf-bar-wrap {
-    margin-top: 0.75rem;
-    background: rgba(255,255,255,0.5);
-    border-radius: 100px;
-    height: 6px;
-    overflow: hidden;
-    max-width: 280px;
-  }
-  @media (prefers-color-scheme: dark) { .conf-bar-wrap { background: rgba(0,0,0,0.2); } }
-  .conf-bar {
-    height: 100%;
-    border-radius: 100px;
-    background: var(--green-400);
-    transition: width 0.8s cubic-bezier(.4,0,.2,1);
-    width: 0%;
-  }
+      .conf-bar-wrap {
+        margin-top: 0.75rem;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 100px;
+        height: 6px;
+        overflow: hidden;
+        max-width: 280px;
+      }
+      @media (prefers-color-scheme: dark) {
+        .conf-bar-wrap {
+          background: rgba(0, 0, 0, 0.2);
+        }
+      }
+      .conf-bar {
+        height: 100%;
+        border-radius: 100px;
+        background: var(--green-400);
+        transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 0%;
+      }
 
-  /* ─── Error ─── */
-  .error-card {
-    background: var(--red-50);
-    border: 0.5px solid rgba(226,75,74,0.2);
-    border-radius: 16px;
-    padding: 1.25rem 1.5rem;
-    animation: fadeUp 0.3s ease both;
-  }
-  @media (prefers-color-scheme: dark) { .error-card { background: rgba(163,45,45,0.12); } }
-  .error-title { font-weight: 600; color: var(--red-600); font-size: 14px; margin-bottom: 6px; }
-  .error-list { list-style: none; font-size: 13px; color: var(--red-600); display: flex; flex-direction: column; gap: 3px; }
-  .error-list li::before { content: '· '; }
+      /* ─── Error ─── */
+      .error-card {
+        background: var(--red-50);
+        border: 0.5px solid rgba(226, 75, 74, 0.2);
+        border-radius: 16px;
+        padding: 1.25rem 1.5rem;
+        animation: fadeUp 0.3s ease both;
+      }
+      @media (prefers-color-scheme: dark) {
+        .error-card {
+          background: rgba(163, 45, 45, 0.12);
+        }
+      }
+      .error-title {
+        font-weight: 600;
+        color: var(--red-600);
+        font-size: 14px;
+        margin-bottom: 6px;
+      }
+      .error-list {
+        list-style: none;
+        font-size: 13px;
+        color: var(--red-600);
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+      .error-list li::before {
+        content: "· ";
+      }
 
-  /* ─── Info strip ─── */
-  .info-strip {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 1px;
-    background: var(--border);
-    border-radius: 14px;
-    overflow: hidden;
-    margin-bottom: 1.25rem;
-    border: 0.5px solid var(--border);
-  }
-  .info-item { background: var(--surface); padding: 1rem 1.25rem; display: flex; flex-direction: column; gap: 4px; }
-  .info-item-key { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
-  .info-item-val { font-size: 15px; font-weight: 500; color: var(--text-primary); }
+      /* ─── Info strip ─── */
+      .info-strip {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 1px;
+        background: var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+        margin-bottom: 1.25rem;
+        border: 0.5px solid var(--border);
+      }
+      .info-item {
+        background: var(--surface);
+        padding: 1rem 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .info-item-key {
+        font-size: 11px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .info-item-val {
+        font-size: 15px;
+        font-weight: 500;
+        color: var(--text-primary);
+      }
 
-  /* ─── Crop Info Card ─── */
-  .info-card {
-    background: var(--surface);
-    border: 0.5px solid var(--border-strong);
-    border-radius: 20px;
-    overflow: hidden;
-    margin-top: 1rem;
-    animation: fadeUp 0.5s ease 0.15s both;
-  }
+      /* ─── Crop Info Card ─── */
+      .info-card {
+        background: var(--surface);
+        border: 0.5px solid var(--border-strong);
+        border-radius: 20px;
+        overflow: hidden;
+        margin-top: 1rem;
+        animation: fadeUp 0.5s ease 0.15s both;
+      }
 
-  .info-card-header {
-    padding: 1.25rem 1.75rem;
-    border-bottom: 0.5px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    text-align: center;
-  }
+      .info-card-header {
+        padding: 1.25rem 1.75rem;
+        border-bottom: 0.5px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-align: center;
+      }
 
-  .info-card-title { font-family: 'DM Serif Display', serif; font-size: 1.15rem; font-weight: 400; text-transform: capitalize; color: var(--text-primary); }
-  .info-card-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+      .info-card-title {
+        font-family: "DM Serif Display", serif;
+        font-size: 1.15rem;
+        font-weight: 400;
+        text-transform: capitalize;
+        color: var(--text-primary);
+      }
+      .info-card-subtitle {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 1px;
+      }
 
-  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+      .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+      }
 
-  .info-block {
-    padding: 1.25rem 1.75rem;
-    border-right: 0.5px solid var(--border);
-    border-bottom: 0.5px solid var(--border);
-    text-align: center;
-  }
-  .info-block:last-child { border-right: none; }
-  .info-block-key { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px; }
-  .info-block-val { font-size: 14px; color: var(--text-primary); line-height: 1.5; }
+      .info-block {
+        padding: 1.25rem 1.75rem;
+        border-right: 0.5px solid var(--border);
+        border-bottom: 0.5px solid var(--border);
+        text-align: center;
+      }
+      .info-block:last-child {
+        border-right: none;
+      }
+      .info-block-key {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+        margin-bottom: 6px;
+      }
+      .info-block-val {
+        font-size: 14px;
+        color: var(--text-primary);
+        line-height: 1.5;
+      }
 
-  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; justify-content: center; }
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 4px;
+        justify-content: center;
+      }
 
-  .tag { font-size: 12px; padding: 3px 10px; border-radius: 100px; font-weight: 500; border: 0.5px solid; }
+      .tag {
+        font-size: 12px;
+        padding: 3px 10px;
+        border-radius: 100px;
+        font-weight: 500;
+        border: 0.5px solid;
+      }
 
-  .tag-pest {
-    background: var(--amber-50);
-    color: var(--amber-400);
-    border-color: rgba(186,117,23,0.2);
-  }
-  .tag-disease {
-    background: var(--red-50);
-    color: var(--red-600);
-    border-color: rgba(163,45,45,0.2);
-    cursor: pointer;
-    transition: transform 0.1s, box-shadow 0.1s;
-  }
-  .tag-disease:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
-  .tag-disease:active { transform: scale(0.97); }
+      .tag-pest {
+        background: var(--amber-50);
+        color: var(--amber-400);
+        border-color: rgba(186, 117, 23, 0.2);
+      }
+      .tag-disease {
+        background: var(--red-50);
+        color: var(--red-600);
+        border-color: rgba(163, 45, 45, 0.2);
+        cursor: pointer;
+        transition:
+          transform 0.1s,
+          box-shadow 0.1s;
+      }
+      .tag-disease:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      }
+      .tag-disease:active {
+        transform: scale(0.97);
+      }
 
-  @media (prefers-color-scheme: dark) {
-    .tag-pest    { background: rgba(186,117,23,0.15); }
-    .tag-disease { background: rgba(163,45,45,0.12); }
-  }
+      @media (prefers-color-scheme: dark) {
+        .tag-pest {
+          background: rgba(186, 117, 23, 0.15);
+        }
+        .tag-disease {
+          background: rgba(163, 45, 45, 0.12);
+        }
+      }
 
-  /* ─── Modal (shared by pest & disease) ─── */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.45);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-    padding: 1.5rem;
-    backdrop-filter: blur(4px);
-  }
-  .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
-  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+      /* ─── Modal (shared by pest & disease) ─── */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        backdrop-filter: blur(4px);
+      }
+      .modal-overlay.open {
+        display: flex;
+        animation: fadeIn 0.2s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
 
-  .modal {
-    background: var(--surface);
-    border: 0.5px solid var(--border-strong);
-    border-radius: 20px;
-    width: 100%;
-    max-width: 520px;
-    max-height: 88vh;
-    overflow-y: auto;
-    animation: slideUp 0.25s cubic-bezier(.4,0,.2,1);
-    scrollbar-width: thin;
-    scrollbar-color: var(--green-200) transparent;
-  }
-  .modal::-webkit-scrollbar { width: 4px; }
-  .modal::-webkit-scrollbar-track { background: transparent; }
-  .modal::-webkit-scrollbar-thumb { background: var(--green-200); border-radius: 100px; }
-  .modal::-webkit-scrollbar-thumb:hover { background: var(--green-400); }
-  @keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+      .modal {
+        background: var(--surface);
+        border: 0.5px solid var(--border-strong);
+        border-radius: 20px;
+        width: 100%;
+        max-width: 520px;
+        max-height: 88vh;
+        overflow-y: auto;
+        animation: slideUp 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        scrollbar-width: thin;
+        scrollbar-color: var(--green-200) transparent;
+      }
+      .modal::-webkit-scrollbar {
+        width: 4px;
+      }
+      .modal::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .modal::-webkit-scrollbar-thumb {
+        background: var(--green-200);
+        border-radius: 100px;
+      }
+      .modal::-webkit-scrollbar-thumb:hover {
+        background: var(--green-400);
+      }
+      @keyframes slideUp {
+        from {
+          transform: translateY(20px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
 
-  .modal-img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 18px 18px 0 0;
-    background: var(--gray-50);
-    display: block;
-  }
-  .modal-img-placeholder {
-    width: 100%;
-    height: 180px;
-    background: var(--gray-50);
-    border-radius: 18px 18px 0 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 4rem;
-  }
-  @media (prefers-color-scheme: dark) { .modal-img-placeholder { background: rgba(255,255,255,0.04); } }
+      .modal-img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 18px 18px 0 0;
+        background: var(--gray-50);
+        display: block;
+      }
+      .modal-img-placeholder {
+        width: 100%;
+        height: 180px;
+        background: var(--gray-50);
+        border-radius: 18px 18px 0 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+      }
+      @media (prefers-color-scheme: dark) {
+        .modal-img-placeholder {
+          background: rgba(255, 255, 255, 0.04);
+        }
+      }
 
-  .modal-body { padding: 1.5rem 1.75rem 1.75rem; }
-  .modal-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem; gap: 1rem; }
-  .modal-title { font-family: 'DM Serif Display', serif; font-size: 1.5rem; font-weight: 400; text-transform: capitalize; color: var(--text-primary); line-height: 1.2; }
-  .modal-close {
-    width: 32px; height: 32px; border-radius: 50%;
-    border: 0.5px solid var(--border-strong);
-    background: var(--bg); color: var(--text-secondary);
-    font-size: 16px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; transition: background 0.15s;
-  }
-  .modal-close:hover { background: var(--gray-100); }
+      .modal-body {
+        padding: 1.5rem 1.75rem 1.75rem;
+      }
+      .modal-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        gap: 1rem;
+      }
+      .modal-title {
+        font-family: "DM Serif Display", serif;
+        font-size: 1.5rem;
+        font-weight: 400;
+        text-transform: capitalize;
+        color: var(--text-primary);
+        line-height: 1.2;
+      }
+      .modal-close {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 0.5px solid var(--border-strong);
+        background: var(--bg);
+        color: var(--text-secondary);
+        font-size: 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: background 0.15s;
+      }
+      .modal-close:hover {
+        background: var(--gray-100);
+      }
 
-  .damage-badge {
-    display: inline-flex; align-items: center; gap: 5px;
-    font-size: 11px; font-weight: 600; text-transform: uppercase;
-    letter-spacing: 0.08em; padding: 3px 10px;
-    border-radius: 100px; margin-bottom: 1rem; border: 0.5px solid;
-  }
-  .damage-high   { background: var(--red-50);   color: var(--red-600);    border-color: rgba(163,45,45,0.2); }
-  .damage-medium { background: var(--amber-50); color: var(--amber-400);  border-color: rgba(186,117,23,0.2); }
-  .damage-low    { background: var(--green-50); color: var(--green-600);  border-color: rgba(59,109,17,0.2); }
-  @media (prefers-color-scheme: dark) {
-    .damage-high   { background: rgba(163,45,45,0.15); }
-    .damage-medium { background: rgba(186,117,23,0.15); }
-    .damage-low    { background: rgba(59,109,17,0.15); }
-  }
+      .damage-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 3px 10px;
+        border-radius: 100px;
+        margin-bottom: 1rem;
+        border: 0.5px solid;
+      }
+      .damage-high {
+        background: var(--red-50);
+        color: var(--red-600);
+        border-color: rgba(163, 45, 45, 0.2);
+      }
+      .damage-medium {
+        background: var(--amber-50);
+        color: var(--amber-400);
+        border-color: rgba(186, 117, 23, 0.2);
+      }
+      .damage-low {
+        background: var(--green-50);
+        color: var(--green-600);
+        border-color: rgba(59, 109, 17, 0.2);
+      }
+      @media (prefers-color-scheme: dark) {
+        .damage-high {
+          background: rgba(163, 45, 45, 0.15);
+        }
+        .damage-medium {
+          background: rgba(186, 117, 23, 0.15);
+        }
+        .damage-low {
+          background: rgba(59, 109, 17, 0.15);
+        }
+      }
 
-  .modal-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 1.25rem; }
-  .modal-section { margin-bottom: 1rem; }
-  .modal-section-key { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 5px; }
-  .modal-section-val { font-size: 13px; color: var(--text-primary); line-height: 1.6; }
+      .modal-desc {
+        font-size: 14px;
+        color: var(--text-secondary);
+        line-height: 1.7;
+        margin-bottom: 1.25rem;
+      }
+      .modal-section {
+        margin-bottom: 1rem;
+      }
+      .modal-section-key {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+        margin-bottom: 5px;
+      }
+      .modal-section-val {
+        font-size: 13px;
+        color: var(--text-primary);
+        line-height: 1.6;
+      }
 
-  .chemical-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 5px; }
-  .chemical-tag {
-    font-size: 12px; padding: 3px 10px; border-radius: 100px;
-    font-weight: 500; border: 0.5px solid;
-  }
-  /* pest chemicals — teal */
-  .chemical-tag.pesticide {
-    background: var(--teal-50); color: var(--teal-600);
-    border-color: rgba(15,110,86,0.2);
-  }
-  /* disease chemicals — purple */
-  .chemical-tag.fungicide {
-    background: var(--purple-50); color: var(--purple-600);
-    border-color: rgba(90,47,153,0.2);
-  }
-  @media (prefers-color-scheme: dark) {
-    .chemical-tag.pesticide { background: rgba(15,110,86,0.15); color: #5DCAA5; }
-    .chemical-tag.fungicide { background: rgba(124,77,186,0.15); color: #B48FE8; }
-  }
+      .chemical-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 5px;
+      }
+      .chemical-tag {
+        font-size: 12px;
+        padding: 3px 10px;
+        border-radius: 100px;
+        font-weight: 500;
+        border: 0.5px solid;
+      }
+      /* pest chemicals — teal */
+      .chemical-tag.pesticide {
+        background: var(--teal-50);
+        color: var(--teal-600);
+        border-color: rgba(15, 110, 86, 0.2);
+      }
+      /* disease chemicals — purple */
+      .chemical-tag.fungicide {
+        background: var(--purple-50);
+        color: var(--purple-600);
+        border-color: rgba(90, 47, 153, 0.2);
+      }
+      @media (prefers-color-scheme: dark) {
+        .chemical-tag.pesticide {
+          background: rgba(15, 110, 86, 0.15);
+          color: #5dcaa5;
+        }
+        .chemical-tag.fungicide {
+          background: rgba(124, 77, 186, 0.15);
+          color: #b48fe8;
+        }
+      }
 
-  .modal-divider { height: 0.5px; background: var(--border); margin: 1rem 0; }
-  .season-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); }
+      .modal-divider {
+        height: 0.5px;
+        background: var(--border);
+        margin: 1rem 0;
+      }
+      .season-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: var(--text-secondary);
+      }
 
-  /* ─── Clickable pest tag ─── */
-  .tag-pest {
-    cursor: pointer;
-    transition: transform 0.1s, box-shadow 0.1s;
-  }
-  .tag-pest:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
-  .tag-pest:active { transform: scale(0.97); }
+      /* ─── Clickable pest tag ─── */
+      .tag-pest {
+        cursor: pointer;
+        transition:
+          transform 0.1s,
+          box-shadow 0.1s;
+      }
+      .tag-pest:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      }
+      .tag-pest:active {
+        transform: scale(0.97);
+      }
 
-  /* ─── Responsive ─── */
-  @media (max-width: 580px) {
-    .result-card { flex-direction: column; text-align: center; }
-    .result-stats { justify-content: center; }
-    .conf-bar-wrap { margin: 0.75rem auto 0; }
-    .submit-wrap { flex-direction: column; align-items: flex-start; }
-  }
-</style>
-</head>
-<body>
-
-<section class="hero">
-  <div class="badge"><span class="badge-dot"></span>AI-Powered · Random Forest</div>
-  <h1>What crop suits<br>your <em>land best?</em></h1>
-  <p class="subtitle">Enter your soil and climate conditions — AI will instantly recommend the best crop to grow.</p>
-</section>
-
-<main class="main">
-
-  <!-- Info strip -->
-  <div class="info-strip">
-    <div class="info-item">
-      <span class="info-item-key">Model</span>
-      <span class="info-item-val">Random Forest</span>
-    </div>
-    <div class="info-item">
-      <span class="info-item-key">Accuracy</span>
-      <span class="info-item-val" id="model-accuracy">—</span>
-    </div>
-    <div class="info-item">
-      <span class="info-item-key">Crop classes</span>
-      <span class="info-item-val">22 types</span>
-    </div>
-    <div class="info-item">
-      <span class="info-item-key">API Status</span>
-      <span class="info-item-val" id="api-status">Connecting...</span>
-    </div>
-  </div>
-
-  <!-- Soil card -->
-  <div class="card">
-    <div class="card-label">Soil data</div>
-    <div class="form-grid">
-      <div class="field">
-        <label>Nitrogen (N) <span>0–140</span></label>
-        <input type="number" id="N" placeholder="e.g. 90" min="0" max="140" step="1" />
-        <span class="field-hint" id="hint-N"></span>
+      /* ─── Responsive ─── */
+      @media (max-width: 580px) {
+        .result-card {
+          flex-direction: column;
+          text-align: center;
+        }
+        .result-stats {
+          justify-content: center;
+        }
+        .conf-bar-wrap {
+          margin: 0.75rem auto 0;
+        }
+        .submit-wrap {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <section class="hero">
+      <div class="badge">
+        <span class="badge-dot"></span>AI-Powered · Random Forest
       </div>
-      <div class="field">
-        <label>Phosphorus (P) <span>5–145</span></label>
-        <input type="number" id="P" placeholder="e.g. 42" min="5" max="145" step="1" />
-        <span class="field-hint" id="hint-P"></span>
+      <h1>What crop suits<br />your <em>land best?</em></h1>
+      <p class="subtitle">
+        Enter your soil and climate conditions — AI will instantly recommend the
+        best crop to grow.
+      </p>
+    </section>
+
+    <main class="main">
+      <!-- Info strip -->
+      <div class="info-strip">
+        <div class="info-item">
+          <span class="info-item-key">Model</span>
+          <span class="info-item-val">Random Forest</span>
+        </div>
+        <div class="info-item">
+          <span class="info-item-key">Accuracy</span>
+          <span class="info-item-val" id="model-accuracy">—</span>
+        </div>
+        <div class="info-item">
+          <span class="info-item-key">Crop classes</span>
+          <span class="info-item-val">22 types</span>
+        </div>
+        <div class="info-item">
+          <span class="info-item-key">API Status</span>
+          <span class="info-item-val" id="api-status">Connecting...</span>
+        </div>
       </div>
-      <div class="field">
-        <label>Potassium (K) <span>5–205</span></label>
-        <input type="number" id="K" placeholder="e.g. 43" min="5" max="205" step="1" />
-        <span class="field-hint" id="hint-K"></span>
+
+      <!-- Soil card -->
+      <div class="card">
+        <div class="card-label">Soil data</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Nitrogen (N) <span>0–140</span></label>
+            <input
+              type="number"
+              id="N"
+              placeholder="e.g. 90"
+              min="0"
+              max="140"
+              step="1"
+            />
+            <span class="field-hint" id="hint-N"></span>
+          </div>
+          <div class="field">
+            <label>Phosphorus (P) <span>5–145</span></label>
+            <input
+              type="number"
+              id="P"
+              placeholder="e.g. 42"
+              min="5"
+              max="145"
+              step="1"
+            />
+            <span class="field-hint" id="hint-P"></span>
+          </div>
+          <div class="field">
+            <label>Potassium (K) <span>5–205</span></label>
+            <input
+              type="number"
+              id="K"
+              placeholder="e.g. 43"
+              min="5"
+              max="205"
+              step="1"
+            />
+            <span class="field-hint" id="hint-K"></span>
+          </div>
+          <div class="field">
+            <label>Soil pH <span>3.5–9.5</span></label>
+            <input
+              type="number"
+              id="ph"
+              placeholder="e.g. 6.5"
+              min="3.5"
+              max="9.5"
+              step="0.01"
+            />
+            <span class="field-hint" id="hint-ph"></span>
+          </div>
+        </div>
       </div>
-      <div class="field">
-        <label>Soil pH <span>3.5–9.5</span></label>
-        <input type="number" id="ph" placeholder="e.g. 6.5" min="3.5" max="9.5" step="0.01" />
-        <span class="field-hint" id="hint-ph"></span>
+
+      <!-- Climate card -->
+      <div class="card">
+        <div class="card-label">Climate data</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Temperature <span>8–44 °C</span></label>
+            <input
+              type="number"
+              id="temperature"
+              placeholder="e.g. 20.8"
+              min="8"
+              max="44"
+              step="0.01"
+            />
+            <span class="field-hint" id="hint-temperature"></span>
+          </div>
+          <div class="field">
+            <label>Humidity <span>14–100 %</span></label>
+            <input
+              type="number"
+              id="humidity"
+              placeholder="e.g. 82.0"
+              min="14"
+              max="100"
+              step="0.01"
+            />
+            <span class="field-hint" id="hint-humidity"></span>
+          </div>
+          <div class="field">
+            <label>Rainfall <span>20–300 mm</span></label>
+            <input
+              type="number"
+              id="rainfall"
+              placeholder="e.g. 202.9"
+              min="20"
+              max="300"
+              step="0.01"
+            />
+            <span class="field-hint" id="hint-rainfall"></span>
+          </div>
+        </div>
+
+        <div class="submit-wrap">
+          <button class="predict-btn" id="predict-btn" onclick="predict()">
+            <div class="btn-spinner" id="spinner"></div>
+            <span id="btn-text">Predict Crop</span>
+          </button>
+          <p class="api-note">
+            Make sure the Flask server is running at<br /><code
+              >http://localhost:5000</code
+            >
+          </p>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div id="result-section"></div>
+    </main>
+
+    <!-- Pest Modal -->
+    <div
+      class="modal-overlay"
+      id="pest-modal"
+      onclick="closeModal('pest-modal', event)"
+    >
+      <div class="modal" id="pest-modal-content">
+        <div id="pest-modal-inner"></div>
       </div>
     </div>
-  </div>
 
-  <!-- Climate card -->
-  <div class="card">
-    <div class="card-label">Climate data</div>
-    <div class="form-grid">
-      <div class="field">
-        <label>Temperature <span>8–44 °C</span></label>
-        <input type="number" id="temperature" placeholder="e.g. 20.8" min="8" max="44" step="0.01" />
-        <span class="field-hint" id="hint-temperature"></span>
-      </div>
-      <div class="field">
-        <label>Humidity <span>14–100 %</span></label>
-        <input type="number" id="humidity" placeholder="e.g. 82.0" min="14" max="100" step="0.01" />
-        <span class="field-hint" id="hint-humidity"></span>
-      </div>
-      <div class="field">
-        <label>Rainfall <span>20–300 mm</span></label>
-        <input type="number" id="rainfall" placeholder="e.g. 202.9" min="20" max="300" step="0.01" />
-        <span class="field-hint" id="hint-rainfall"></span>
+    <!-- Disease Modal -->
+    <div
+      class="modal-overlay"
+      id="disease-modal"
+      onclick="closeModal('disease-modal', event)"
+    >
+      <div class="modal" id="disease-modal-content">
+        <div id="disease-modal-inner"></div>
       </div>
     </div>
 
-    <div class="submit-wrap">
-      <button class="predict-btn" id="predict-btn" onclick="predict()">
-        <div class="btn-spinner" id="spinner"></div>
-        <span id="btn-text">Predict Crop</span>
-      </button>
-      <p class="api-note">Make sure the Flask server is running at<br><code>http://localhost:5000</code></p>
-    </div>
-  </div>
+    <script>
+      const API = "http://localhost:5000";
 
-  <!-- Result -->
-  <div id="result-section"></div>
+      const RANGES = {
+        N: [0, 140, "kg/ha"],
+        P: [5, 145, "kg/ha"],
+        K: [5, 205, "kg/ha"],
+        temperature: [8, 44, "°C"],
+        humidity: [14, 100, "%"],
+        ph: [3.5, 9.5, ""],
+        rainfall: [20, 300, "mm"],
+      };
 
-</main>
+      const DAMAGE_LABEL = {
+        high: "🔴 High damage",
+        medium: "🟡 Medium damage",
+        low: "🟢 Low damage",
+      };
 
-<!-- Pest Modal -->
-<div class="modal-overlay" id="pest-modal" onclick="closeModal('pest-modal', event)">
-  <div class="modal" id="pest-modal-content">
-    <div id="pest-modal-inner"></div>
-  </div>
-</div>
+      // ── Health check ────────────────────────────────────────
+      async function checkHealth() {
+        try {
+          const r = await fetch(`${API}/health`);
+          const d = await r.json();
+          document.getElementById("api-status").textContent = "Online";
+          document.getElementById("api-status").style.color = "#3B6D11";
+          document.getElementById("model-accuracy").textContent =
+            d.model_accuracy.toFixed(2) + "%";
+        } catch {
+          document.getElementById("api-status").textContent = "Offline";
+          document.getElementById("api-status").style.color = "#A32D2D";
+        }
+      }
 
-<!-- Disease Modal -->
-<div class="modal-overlay" id="disease-modal" onclick="closeModal('disease-modal', event)">
-  <div class="modal" id="disease-modal-content">
-    <div id="disease-modal-inner"></div>
-  </div>
-</div>
+      // ── Live validation ──────────────────────────────────────
+      Object.keys(RANGES).forEach((id) => {
+        const input = document.getElementById(id);
+        if (!input) return;
+        input.addEventListener("input", () => validateField(id));
+      });
 
-<script>
-const API = 'http://localhost:5000';
+      function validateField(id) {
+        const input = document.getElementById(id);
+        const hint = document.getElementById("hint-" + id);
+        if (!input || input.value === "") {
+          input.classList.remove("valid", "invalid");
+          if (hint) hint.textContent = "";
+          return true;
+        }
+        const val = parseFloat(input.value);
+        const [lo, hi, unit] = RANGES[id];
+        const ok = val >= lo && val <= hi;
+        input.classList.toggle("valid", ok);
+        input.classList.toggle("invalid", !ok);
+        if (hint) {
+          hint.textContent = ok
+            ? ""
+            : `Must be between ${lo}–${hi}${unit ? " " + unit : ""}`;
+          hint.className = "field-hint" + (ok ? "" : " error");
+        }
+        return ok;
+      }
 
-const RANGES = {
-  N:           [0,    140,  'kg/ha'],
-  P:           [5,    145,  'kg/ha'],
-  K:           [5,    205,  'kg/ha'],
-  temperature: [8,    44,   '°C'],
-  humidity:    [14,   100,  '%'],
-  ph:          [3.5,  9.5,  ''],
-  rainfall:    [20,   300,  'mm'],
-};
+      // ── Predict ──────────────────────────────────────────────
+      async function predict() {
+        let allOk = true;
+        const payload = {};
 
-const DAMAGE_LABEL = { high: '🔴 High damage', medium: '🟡 Medium damage', low: '🟢 Low damage' };
+        for (const id of Object.keys(RANGES)) {
+          const val = document.getElementById(id)?.value;
+          if (!val) {
+            allOk = false;
+            const hint = document.getElementById("hint-" + id);
+            if (hint) {
+              hint.textContent = "Required";
+              hint.className = "field-hint error";
+            }
+            continue;
+          }
+          if (!validateField(id)) allOk = false;
+          payload[id] = parseFloat(val);
+        }
+        if (!allOk) return;
 
-// ── Health check ────────────────────────────────────────
-async function checkHealth() {
-  try {
-    const r = await fetch(`${API}/health`);
-    const d = await r.json();
-    document.getElementById('api-status').textContent = 'Online';
-    document.getElementById('api-status').style.color = '#3B6D11';
-    document.getElementById('model-accuracy').textContent = d.model_accuracy.toFixed(2) + '%';
-  } catch {
-    document.getElementById('api-status').textContent = 'Offline';
-    document.getElementById('api-status').style.color = '#A32D2D';
-  }
-}
+        const btn = document.getElementById("predict-btn");
+        btn.disabled = true;
+        document.getElementById("spinner").style.display = "block";
+        document.getElementById("btn-text").textContent = "Processing...";
+        document.getElementById("result-section").style.display = "none";
 
-// ── Live validation ──────────────────────────────────────
-Object.keys(RANGES).forEach(id => {
-  const input = document.getElementById(id);
-  if (!input) return;
-  input.addEventListener('input', () => validateField(id));
-});
+        try {
+          const res = await fetch(`${API}/predict`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+          res.ok ? showResult(data) : showError(data);
+        } catch {
+          showError({
+            error: "Cannot connect to Flask server.",
+            details: ["Make sure the server is running: python app.py"],
+          });
+        } finally {
+          btn.disabled = false;
+          document.getElementById("spinner").style.display = "none";
+          document.getElementById("btn-text").textContent = "Predict Crop";
+        }
+      }
 
-function validateField(id) {
-  const input = document.getElementById(id);
-  const hint  = document.getElementById('hint-' + id);
-  if (!input || input.value === '') {
-    input.classList.remove('valid', 'invalid');
-    if (hint) hint.textContent = '';
-    return true;
-  }
-  const val = parseFloat(input.value);
-  const [lo, hi, unit] = RANGES[id];
-  const ok = val >= lo && val <= hi;
-  input.classList.toggle('valid', ok);
-  input.classList.toggle('invalid', !ok);
-  if (hint) {
-    hint.textContent = ok ? '' : `Must be between ${lo}–${hi}${unit ? ' ' + unit : ''}`;
-    hint.className   = 'field-hint' + (ok ? '' : ' error');
-  }
-  return ok;
-}
-
-// ── Predict ──────────────────────────────────────────────
-async function predict() {
-  let allOk = true;
-  const payload = {};
-
-  for (const id of Object.keys(RANGES)) {
-    const val = document.getElementById(id)?.value;
-    if (!val) {
-      allOk = false;
-      const hint = document.getElementById('hint-' + id);
-      if (hint) { hint.textContent = 'Required'; hint.className = 'field-hint error'; }
-      continue;
-    }
-    if (!validateField(id)) allOk = false;
-    payload[id] = parseFloat(val);
-  }
-  if (!allOk) return;
-
-  const btn = document.getElementById('predict-btn');
-  btn.disabled = true;
-  document.getElementById('spinner').style.display = 'block';
-  document.getElementById('btn-text').textContent = 'Processing...';
-  document.getElementById('result-section').style.display = 'none';
-
-  try {
-    const res  = await fetch(`${API}/predict`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    const data = await res.json();
-    res.ok ? showResult(data) : showError(data);
-  } catch {
-    showError({ error: 'Cannot connect to Flask server.', details: ['Make sure the server is running: python app.py'] });
-  } finally {
-    btn.disabled = false;
-    document.getElementById('spinner').style.display = 'none';
-    document.getElementById('btn-text').textContent = 'Predict Crop';
-  }
-}
-
-// ── Show result ──────────────────────────────────────────
-async function showResult(data) {
-  const sec = document.getElementById('result-section');
-  sec.style.display = 'block';
-  sec.innerHTML = `
+      // ── Show result ──────────────────────────────────────────
+      async function showResult(data) {
+        const sec = document.getElementById("result-section");
+        sec.style.display = "block";
+        sec.innerHTML = `
     <div class="result-card">
       <div class="result-emoji">${data.emoji}</div>
       <div class="result-info">
@@ -741,31 +1207,40 @@ async function showResult(data) {
     </div>
     <div id="crop-info-card"></div>`;
 
-  sec.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  setTimeout(() => {
-    document.getElementById('conf-bar').style.width = data.confidence.toFixed(1) + '%';
-  }, 50);
+        sec.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        setTimeout(() => {
+          document.getElementById("conf-bar").style.width =
+            data.confidence.toFixed(1) + "%";
+        }, 50);
 
-  try {
-    const r = await fetch(`${API}/crop-info/${data.crop}`);
-    const info = await r.json();
-    if (r.ok) renderCropInfo(data.crop, data.emoji, info);
-  } catch { /* skip if offline */ }
-}
+        try {
+          const r = await fetch(`${API}/crop-info/${data.crop}`);
+          const info = await r.json();
+          if (r.ok) renderCropInfo(data.crop, data.emoji, info);
+        } catch {
+          /* skip if offline */
+        }
+      }
 
-// ── Render crop info ─────────────────────────────────────
-function renderCropInfo(crop, emoji, info) {
-  const el = document.getElementById('crop-info-card');
-  if (!el) return;
+      // ── Render crop info ─────────────────────────────────────
+      function renderCropInfo(crop, emoji, info) {
+        const el = document.getElementById("crop-info-card");
+        if (!el) return;
 
-  const pestTags    = (info.pests    || []).map(p =>
-    `<span class="tag tag-pest" onclick="openPestModal('${p}')">${p} ↗</span>`
-  ).join('');
-  const diseaseTags = (info.diseases || []).map(d =>
-    `<span class="tag tag-disease" onclick="openDiseaseModal('${d}')">${d} ↗</span>`
-  ).join('');
+        const pestTags = (info.pests || [])
+          .map(
+            (p) =>
+              `<span class="tag tag-pest" onclick="openPestModal('${p}')">${p} ↗</span>`,
+          )
+          .join("");
+        const diseaseTags = (info.diseases || [])
+          .map(
+            (d) =>
+              `<span class="tag tag-disease" onclick="openDiseaseModal('${d}')">${d} ↗</span>`,
+          )
+          .join("");
 
-  el.innerHTML = `
+        el.innerHTML = `
     <div class="info-card">
       <div class="info-card-header">
         <span style="font-size:1.6rem;line-height:1">${emoji}</span>
@@ -797,145 +1272,155 @@ function renderCropInfo(crop, emoji, info) {
         </div>
       </div>
     </div>`;
-}
+      }
 
-// ── Show error ───────────────────────────────────────────
-function showError(data) {
-  const sec = document.getElementById('result-section');
-  sec.style.display = 'block';
-  const details = (data.details || []).map(d => `<li>${d}</li>`).join('');
-  sec.innerHTML = `
+      // ── Show error ───────────────────────────────────────────
+      function showError(data) {
+        const sec = document.getElementById("result-section");
+        sec.style.display = "block";
+        const details = (data.details || [])
+          .map((d) => `<li>${d}</li>`)
+          .join("");
+        sec.innerHTML = `
     <div class="error-card">
       <div class="error-title">⚠ ${data.error}</div>
-      ${details ? `<ul class="error-list">${details}</ul>` : ''}
+      ${details ? `<ul class="error-list">${details}</ul>` : ""}
     </div>`;
-}
+      }
 
-// ── Pest modal ───────────────────────────────────────────
-async function openPestModal(pestName) {
-  const overlay = document.getElementById('pest-modal');
-  const inner   = document.getElementById('pest-modal-inner');
+      // ── Pest modal ───────────────────────────────────────────
+      async function openPestModal(pestName) {
+        const overlay = document.getElementById("pest-modal");
+        const inner = document.getElementById("pest-modal-inner");
 
-  overlay.classList.add('open');
-  inner.innerHTML = loadingHTML('🐛');
+        overlay.classList.add("open");
+        inner.innerHTML = loadingHTML("🐛");
 
-  try {
-    const res  = await fetch(`${API}/pest-info/${encodeURIComponent(pestName)}`);
-    const info = await res.json();
+        try {
+          const res = await fetch(
+            `${API}/pest-info/${encodeURIComponent(pestName)}`,
+          );
+          const info = await res.json();
 
-    const chemicals = (info.pesticides || [])
-      .map(p => `<span class="chemical-tag pesticide">${p}</span>`).join('');
+          const chemicals = (info.pesticides || [])
+            .map((p) => `<span class="chemical-tag pesticide">${p}</span>`)
+            .join("");
 
-    inner.innerHTML = `
-      <img src="pest_image/${pestName.toLowerCase().replace(/\s+/g,'_')}.jpg"
+          inner.innerHTML = `
+      <img src="pest_image/${pestName.toLowerCase().replace(/\s+/g, "_")}.jpg"
            class="modal-img"
            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="modal-img-placeholder" style="display:none">🐛</div>
       <div class="modal-body">
-        ${modalHeader(pestName, 'pest-modal')}
-        <span class="damage-badge damage-${info.damage_level || 'medium'}">${DAMAGE_LABEL[info.damage_level] || 'Unknown'}</span>
-        <p class="modal-desc">${info.description || '—'}</p>
+        ${modalHeader(pestName, "pest-modal")}
+        <span class="damage-badge damage-${info.damage_level || "medium"}">${DAMAGE_LABEL[info.damage_level] || "Unknown"}</span>
+        <p class="modal-desc">${info.description || "—"}</p>
         <div class="modal-divider"></div>
-        ${modalSection('⚠ Attack symptoms',  info.symptoms)}
-        ${modalSection('🛡 Prevention',       info.prevention)}
-        ${modalSection('💊 Treatment',        info.treatment)}
+        ${modalSection("⚠ Attack symptoms", info.symptoms)}
+        ${modalSection("🛡 Prevention", info.prevention)}
+        ${modalSection("💊 Treatment", info.treatment)}
         <div class="modal-section">
           <div class="modal-section-key">🧪 Pesticides</div>
           <div class="chemical-tags">${chemicals}</div>
         </div>
         <div class="modal-divider"></div>
-        <div class="season-row">🗓 Active season: <strong>${info.active_season || '—'}</strong></div>
+        <div class="season-row">🗓 Active season: <strong>${info.active_season || "—"}</strong></div>
       </div>`;
-  } catch {
-    inner.innerHTML = errorModalHTML(pestName, 'pest-modal');
-  }
-}
+        } catch {
+          inner.innerHTML = errorModalHTML(pestName, "pest-modal");
+        }
+      }
 
-// ── Disease modal ────────────────────────────────────────
-async function openDiseaseModal(diseaseName) {
-  const overlay = document.getElementById('disease-modal');
-  const inner   = document.getElementById('disease-modal-inner');
+      // ── Disease modal ────────────────────────────────────────
+      async function openDiseaseModal(diseaseName) {
+        const overlay = document.getElementById("disease-modal");
+        const inner = document.getElementById("disease-modal-inner");
 
-  overlay.classList.add('open');
-  inner.innerHTML = loadingHTML('🦠');
+        overlay.classList.add("open");
+        inner.innerHTML = loadingHTML("🦠");
 
-  try {
-    const res  = await fetch(`${API}/disease-info/${encodeURIComponent(diseaseName)}`);
-    const info = await res.json();
+        try {
+          const res = await fetch(
+            `${API}/disease-info/${encodeURIComponent(diseaseName)}`,
+          );
+          const info = await res.json();
 
-    const chemicals = (info.chemicals || [])
-      .map(c => `<span class="chemical-tag fungicide">${c}</span>`).join('');
+          const chemicals = (info.chemicals || [])
+            .map((c) => `<span class="chemical-tag fungicide">${c}</span>`)
+            .join("");
 
-    inner.innerHTML = `
-      <div class="modal-img-placeholder">🦠</div>
+          inner.innerHTML = `
+      <img src="disease_image/${diseaseName.toLowerCase().replace(/\s+/g, "_")}.jpg"
+           class="modal-img"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="modal-body">
-        ${modalHeader(diseaseName, 'disease-modal')}
-        <span class="damage-badge damage-${info.damage_level || 'medium'}">${DAMAGE_LABEL[info.damage_level] || 'Unknown'}</span>
-        <p class="modal-desc">${info.description || '—'}</p>
+        ${modalHeader(diseaseName, "disease-modal")}
+        <span class="damage-badge damage-${info.damage_level || "medium"}">${DAMAGE_LABEL[info.damage_level] || "Unknown"}</span>
+        <p class="modal-desc">${info.description || "—"}</p>
         <div class="modal-divider"></div>
-        ${modalSection('⚠ Symptoms',    info.symptoms)}
-        ${modalSection('🛡 Prevention', info.prevention)}
-        ${modalSection('💊 Treatment',  info.treatment)}
+        ${modalSection("⚠ Symptoms", info.symptoms)}
+        ${modalSection("🛡 Prevention", info.prevention)}
+        ${modalSection("💊 Treatment", info.treatment)}
         <div class="modal-section">
           <div class="modal-section-key">🧪 Chemicals / Fungicides</div>
           <div class="chemical-tags">${chemicals}</div>
         </div>
         <div class="modal-divider"></div>
-        <div class="season-row">🗓 Active season: <strong>${info.active_season || '—'}</strong></div>
+        <div class="season-row">🗓 Active season: <strong>${info.active_season || "—"}</strong></div>
       </div>`;
-  } catch {
-    inner.innerHTML = errorModalHTML(diseaseName, 'disease-modal');
-  }
-}
+        } catch {
+          inner.innerHTML = errorModalHTML(diseaseName, "disease-modal");
+        }
+      }
 
-// ── Modal helpers ────────────────────────────────────────
-function loadingHTML(icon) {
-  return `
+      // ── Modal helpers ────────────────────────────────────────
+      function loadingHTML(icon) {
+        return `
     <div class="modal-img-placeholder">${icon}</div>
     <div class="modal-body">
       <div style="width:140px;height:20px;background:var(--gray-50);border-radius:6px;margin-bottom:1rem"></div>
       <p style="font-size:13px;color:var(--text-muted)">Loading information...</p>
     </div>`;
-}
+      }
 
-function errorModalHTML(name, modalId) {
-  return `
+      function errorModalHTML(name, modalId) {
+        return `
     <div class="modal-body">
       ${modalHeader(name, modalId)}
       <p style="color:var(--red-600);font-size:14px">Failed to load info. Make sure the server is running.</p>
     </div>`;
-}
+      }
 
-function modalHeader(name, modalId) {
-  return `
+      function modalHeader(name, modalId) {
+        return `
     <div class="modal-header">
       <div class="modal-title">${name}</div>
       <button class="modal-close" onclick="document.getElementById('${modalId}').classList.remove('open')">✕</button>
     </div>`;
-}
+      }
 
-function modalSection(key, val) {
-  return `
+      function modalSection(key, val) {
+        return `
     <div class="modal-section">
       <div class="modal-section-key">${key}</div>
-      <div class="modal-section-val">${val || '—'}</div>
+      <div class="modal-section-val">${val || "—"}</div>
     </div>`;
-}
+      }
 
-function closeModal(modalId, e) {
-  if (e.target === document.getElementById(modalId)) {
-    document.getElementById(modalId).classList.remove('open');
-  }
-}
+      function closeModal(modalId, e) {
+        if (e.target === document.getElementById(modalId)) {
+          document.getElementById(modalId).classList.remove("open");
+        }
+      }
 
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    document.getElementById('pest-modal').classList.remove('open');
-    document.getElementById('disease-modal').classList.remove('open');
-  }
-});
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          document.getElementById("pest-modal").classList.remove("open");
+          document.getElementById("disease-modal").classList.remove("open");
+        }
+      });
 
-checkHealth();
-</script>
-</body>
+      checkHealth();
+    </script>
+  </body>
 </html>
